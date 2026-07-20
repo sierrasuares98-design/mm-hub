@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { ShieldAlert, Activity, CheckCircle, Clock, AlertTriangle, MessageSquare, TrendingUp, Users } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 const BRANDS = [
   { id: 'all', name: 'Semua Akun', color: 'border-zinc-700 bg-zinc-800' },
@@ -31,21 +33,11 @@ const CREATORS = [
 
 const INITIAL_CONTENT_CARDS = [];
 
-const INITIAL_DIVISION_REQUESTS = [];
-
 const INITIAL_PILLARS = [
   { id: 1, brand: 'all', name: 'Edukasi & Tips', description: 'Membagikan insight, life hack, atau pengetahuan terkait industri.', targetPercentage: 40 },
   { id: 2, brand: 'all', name: 'Hiburan & Tren', description: 'Meme, parodi, atau mengikuti tren audio/video viral.', targetPercentage: 30 },
   { id: 3, brand: 'all', name: 'Hard Selling', description: 'Promosi langsung, diskon, pengumuman produk baru dengan CTA beli.', targetPercentage: 20 },
   { id: 4, brand: 'all', name: 'Behind the Scenes', description: 'Memperlihatkan kultur tim untuk kedekatan emosional.', targetPercentage: 10 }
-];
-
-const PIPELINE_STAGES = [
-  { key: 'Ide', label: 'Ide / Draft', icon: '💡', desc: 'Brainstorming & ideasi awal konten' },
-  { key: 'Script/Brief', label: 'Script / Brief', icon: '📝', desc: 'Penyusunan naskah & konsep visual' },
-  { key: 'Produksi', label: 'Produksi / Syuting', icon: '🎥', desc: 'Proses take video, VO, atau penyediaan aset mentah' },
-  { key: 'Editing', label: 'Editing & QC', icon: '🎬', desc: 'Produksi video, desain grafis & audit' },
-  { key: 'Publish', label: 'Publish / Sched', icon: '🚀', desc: 'Konten terbit atau terjadwal rapi' }
 ];
 
 const REQUEST_STAGES = [
@@ -56,16 +48,33 @@ const REQUEST_STAGES = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('beranda'); // 'beranda', 'pabrik-konten', 'control-center', 'daily-checkin', 'disciplinary', 'pillars', 'jobdesk-pribadi'
+  const [activeTab, setActiveTab] = useState('beranda');
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [jobdeskUser, setJobdeskUser] = useState('Fathan');
   
   /* State lists */
   const [contentCards, setContentCards] = useState(INITIAL_CONTENT_CARDS);
-  const [requests, setRequests] = useState(INITIAL_DIVISION_REQUESTS);
+  const [requests, setRequests] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [disciplinaryRecords, setDisciplinaryRecords] = useState([]);
   const [pillars, setPillars] = useState(INITIAL_PILLARS);
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    const { data, error } = await supabase
+      .from('requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching requests from Supabase:', error);
+    } else if (data) {
+      setRequests(data);
+    }
+  };
   
   /* UI view & active states */
   const [pabrikViewMode, setPabrikViewMode] = useState('pipeline'); 
@@ -161,7 +170,6 @@ export default function App() {
       return;
     }
     
-    // Auto-determine platform based on brand string
     let autoPlatform = 'Instagram';
     if (newIdeaDraft.brand.startsWith('tt-')) autoPlatform = 'TikTok';
     if (newIdeaDraft.brand.startsWith('yt-')) autoPlatform = 'YouTube';
@@ -178,7 +186,6 @@ export default function App() {
       date: newIdeaDraft.date,
       notes: newIdeaDraft.notes
     });
-    // Auto-sync ke Daily Check-in tim
     const todayStr = new Date().toLocaleDateString('id-ID');
     const taskText = `\n- [Auto Task] Bikin konten: ${newIdeaDraft.title}`;
     
@@ -215,7 +222,6 @@ export default function App() {
     });
   };
 
-  /* Form state for request */
   const [requestDraft, setRequestDraft] = useState({
     pemohon: '',
     jenisKebutuhan: 'Desain Grafis',
@@ -227,7 +233,6 @@ export default function App() {
   });
   const [slaWarning, setSlaWarning] = useState(false);
 
-  /* Custom state for temporary request action forms (assigning PIC / updating link) */
   const [assigningRequestId, setAssigningRequestId] = useState(null);
   const [tempPic, setTempPic] = useState('Fathan');
   const [tempEstimasiMulmed, setTempEstimasiMulmed] = useState('');
@@ -337,35 +342,37 @@ export default function App() {
     }
   };
 
-  const handleRequestSubmit = (e) => {
+  const handleRequestSubmit = async (e) => {
     e.preventDefault();
-    if (!requestDraft.pemohon || !requestDraft.namaProject || !requestDraft.estimasiSelesai) {
-      triggerToast('Mohon lengkapi seluruh kolom wajib!', 'error');
-      return;
-    }
-
-    const nextIdNum = requests.length + 1;
-    const requestNo = `REQ-2026-${nextIdNum.toString().padStart(3, '0')}`;
+    
+    const count = requests.length + 1;
+    const requestNo = `REQ-MM-${String(count).padStart(3, '0')}`;
 
     const newRequest = {
       no: requestNo,
-      tanggalRequest: '2026-07-16',
+      tanggalRequest: new Date().toISOString().split('T')[0],
       pemohon: requestDraft.pemohon,
       jenisKebutuhan: requestDraft.jenisKebutuhan,
       namaProject: requestDraft.namaProject,
       briefVisual: requestDraft.briefVisual || 'Tidak ada brief visual khusus.',
       deadlinePemohon: requestDraft.deadlinePemohon,
-      estimasiSelesai: requestDraft.deadlinePemohon, // fallback for SLA checks
+      estimasiSelesai: requestDraft.deadlinePemohon,
       estimasiMulmed: '',
       pic: requestDraft.pic,
       status: 'Review & Antrean',
       linkHasilAkhir: ''
     };
 
-    setRequests([newRequest, ...requests]);
-    triggerToast(`Permintaan ${requestNo} sukses diajukan ke Antrean Review!`);
+    const { error } = await supabase.from('requests').insert([newRequest]);
+
+    if (error) {
+      triggerToast('Gagal menyimpan ke database Supabase!', 'error');
+      console.error(error);
+    } else {
+      setRequests([newRequest, ...requests]);
+      triggerToast(`Permintaan ${requestNo} sukses diajukan ke Antrean Review!`);
+    }
     
-    // Clear draft form
     setRequestDraft({
       pemohon: '',
       jenisKebutuhan: 'Desain Grafis',
@@ -375,52 +382,95 @@ export default function App() {
       pic: 'Belum Ditunjuk',
       linkHasilAkhir: ''
     });
+    
     setSlaWarning(false);
     setActiveRequestSubTab('Review & Antrean');
   };
 
-  const assignRequestPic = (reqNo) => {
+  const assignRequestPic = async (reqNo) => {
     if (!tempEstimasiMulmed) {
       triggerToast('Estimasi penyelesaian dari Multimedia harus diisi!', 'error');
       return;
     }
-    setRequests(prev => prev.map(r => 
-      r.no === reqNo 
-        ? { ...r, pic: tempPic, estimasiMulmed: tempEstimasiMulmed, status: 'Proses Desain' } 
-        : r
-    ));
-    setAssigningRequestId(null);
-    setTempEstimasiMulmed('');
-    triggerToast(`Permintaan ${reqNo} disetujui & ditugaskan kepada ${tempPic}.`);
+
+    const { error } = await supabase
+      .from('requests')
+      .update({ pic: tempPic, estimasiMulmed: tempEstimasiMulmed, status: 'Proses Desain' })
+      .eq('no', reqNo);
+
+    if (error) {
+      triggerToast('Gagal update ke database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, pic: tempPic, estimasiMulmed: tempEstimasiMulmed, status: 'Proses Desain' } 
+          : r
+      ));
+      setAssigningRequestId(null);
+      setTempEstimasiMulmed('');
+      triggerToast(`Permintaan ${reqNo} disetujui & ditugaskan kepada ${tempPic}.`);
+    }
   };
 
-  const advanceRequestToQc = (reqNo) => {
-    setRequests(prev => prev.map(r => 
-      r.no === reqNo 
-        ? { ...r, status: 'QC & Revisi Divisi' } 
-        : r
-    ));
-    triggerToast(`Aset ${reqNo} telah diselesaikan oleh desainer & diajukan ke QC Divisi.`);
+  const advanceRequestToQc = async (reqNo) => {
+    const { error } = await supabase
+      .from('requests')
+      .update({ status: 'QC & Revisi Divisi' })
+      .eq('no', reqNo);
+
+    if (error) {
+      triggerToast('Gagal update ke database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, status: 'QC & Revisi Divisi' } 
+          : r
+      ));
+      triggerToast(`Aset ${reqNo} telah diselesaikan oleh desainer & diajukan ke QC Divisi.`);
+    }
   };
 
-  const completeRequestWithLink = (reqNo) => {
+  const completeRequestWithLink = async (reqNo) => {
     if (!tempDeliverableLink) {
       triggerToast('Mohon lampirkan Link Hasil Akhir sebagai bukti serah terima.', 'error');
       return;
     }
-    setRequests(prev => prev.map(r => 
-      r.no === reqNo 
-        ? { ...r, linkHasilAkhir: tempDeliverableLink, status: 'Selesai' } 
-        : r
-    ));
-    setDeliveryRequestId(null);
-    setTempDeliverableLink('');
-    triggerToast(`Sukses! Permintaan ${reqNo} ditandai selesai dan link hasil akhir dikirim.`);
+
+    const { error } = await supabase
+      .from('requests')
+      .update({ linkHasilAkhir: tempDeliverableLink, status: 'Selesai' })
+      .eq('no', reqNo);
+
+    if (error) {
+      triggerToast('Gagal update ke database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, linkHasilAkhir: tempDeliverableLink, status: 'Selesai' } 
+          : r
+      ));
+      setDeliveryRequestId(null);
+      setTempDeliverableLink('');
+      triggerToast(`Sukses! Permintaan ${reqNo} ditandai selesai dan link hasil akhir dikirim.`);
+    }
   };
 
-  const deleteRequest = (reqNo) => {
-    setRequests(prev => prev.filter(r => r.no !== reqNo));
-    triggerToast(`Permintaan ${reqNo} berhasil dihapus.`);
+  const deleteRequest = async (reqNo) => {
+    const { error } = await supabase
+      .from('requests')
+      .delete()
+      .eq('no', reqNo);
+
+    if (error) {
+      triggerToast('Gagal menghapus dari database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.filter(r => r.no !== reqNo));
+      triggerToast(`Permintaan ${reqNo} berhasil dihapus.`);
+    }
   };
 
   /* Quick add content card idea */
