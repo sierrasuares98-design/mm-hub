@@ -1332,6 +1332,15 @@ export default function App() {
                             </div>
                           )}
                         </div>
+                        
+                        <div className="mt-4 pt-3 border-t border-zinc-800">
+                          <button
+                            onClick={() => advanceRequestToQc(req.no)}
+                            className="w-full bg-zinc-900 hover:bg-blue-950/40 hover:text-blue-400 text-zinc-300 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                          >
+                            Selesai Edit & Ajukan QC ➔
+                          </button>
+                        </div>
                       </div>
                     ))}
                     {requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').length === 0 && (
@@ -1354,6 +1363,46 @@ export default function App() {
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
                         <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
+
+                        <div className="mt-4 pt-3 border-t border-zinc-800">
+                          {deliveryRequestId === req.no ? (
+                            <div className="space-y-2 bg-zinc-900 p-2 rounded border border-zinc-700">
+                              <label className="text-[9px] font-bold text-zinc-400 block uppercase">Link Hasil Akhir:</label>
+                              <input 
+                                type="url"
+                                required
+                                placeholder="https://drive.google.com/..."
+                                value={tempDeliverableLink}
+                                onChange={(e) => setTempDeliverableLink(e.target.value)}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded p-1 text-[11px] text-zinc-100"
+                              />
+                              <div className="flex gap-1.5">
+                                <button 
+                                  onClick={() => completeRequestWithLink(req.no)}
+                                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 rounded"
+                                >
+                                  Kirim Aset
+                                </button>
+                                <button 
+                                  onClick={() => setDeliveryRequestId(null)}
+                                  className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] px-2 py-1 rounded"
+                                >
+                                  Batal
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setDeliveryRequestId(req.no);
+                                setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
+                              }}
+                              className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-[10px] py-1.5 rounded-lg transition"
+                            >
+                              ✓ Selesaikan & Kirim ➔
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                     {requests.filter(r => r.pic === jobdeskUser && r.status === 'QC & Revisi Divisi').length === 0 && (
