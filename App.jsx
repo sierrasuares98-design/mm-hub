@@ -56,8 +56,9 @@ const REQUEST_STAGES = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('beranda'); // 'beranda', 'pabrik-konten', 'control-center', 'daily-checkin', 'disciplinary', 'pillars'
+  const [activeTab, setActiveTab] = useState('beranda'); // 'beranda', 'pabrik-konten', 'control-center', 'daily-checkin', 'disciplinary', 'pillars', 'jobdesk-pribadi'
   const [selectedBrand, setSelectedBrand] = useState('all');
+  const [jobdeskUser, setJobdeskUser] = useState('Fathan');
   
   /* State lists */
   const [contentCards, setContentCards] = useState(INITIAL_CONTENT_CARDS);
@@ -220,7 +221,7 @@ export default function App() {
     jenisKebutuhan: 'Desain Grafis',
     namaProject: '',
     briefVisual: '',
-    estimasiSelesai: '',
+    deadlinePemohon: '',
     pic: 'Belum Ditunjuk',
     linkHasilAkhir: ''
   });
@@ -229,6 +230,7 @@ export default function App() {
   /* Custom state for temporary request action forms (assigning PIC / updating link) */
   const [assigningRequestId, setAssigningRequestId] = useState(null);
   const [tempPic, setTempPic] = useState('Fathan');
+  const [tempEstimasiMulmed, setTempEstimasiMulmed] = useState('');
   const [deliveryRequestId, setDeliveryRequestId] = useState(null);
   const [tempDeliverableLink, setTempDeliverableLink] = useState('');
 
@@ -318,7 +320,7 @@ export default function App() {
   };
 
   const handleSlaDateChange = (dateVal) => {
-    setRequestDraft(prev => ({ ...prev, estimasiSelesai: dateVal }));
+    setRequestDraft(prev => ({ ...prev, deadlinePemohon: dateVal }));
     if (!dateVal) {
       setSlaWarning(false);
       return;
@@ -352,7 +354,9 @@ export default function App() {
       jenisKebutuhan: requestDraft.jenisKebutuhan,
       namaProject: requestDraft.namaProject,
       briefVisual: requestDraft.briefVisual || 'Tidak ada brief visual khusus.',
-      estimasiSelesai: requestDraft.estimasiSelesai,
+      deadlinePemohon: requestDraft.deadlinePemohon,
+      estimasiSelesai: requestDraft.deadlinePemohon, // fallback for SLA checks
+      estimasiMulmed: '',
       pic: requestDraft.pic,
       status: 'Review & Antrean',
       linkHasilAkhir: ''
@@ -367,7 +371,7 @@ export default function App() {
       jenisKebutuhan: 'Desain Grafis',
       namaProject: '',
       briefVisual: '',
-      estimasiSelesai: '',
+      deadlinePemohon: '',
       pic: 'Belum Ditunjuk',
       linkHasilAkhir: ''
     });
@@ -376,12 +380,17 @@ export default function App() {
   };
 
   const assignRequestPic = (reqNo) => {
+    if (!tempEstimasiMulmed) {
+      triggerToast('Estimasi penyelesaian dari Multimedia harus diisi!', 'error');
+      return;
+    }
     setRequests(prev => prev.map(r => 
       r.no === reqNo 
-        ? { ...r, pic: tempPic, status: 'Proses Desain' } 
+        ? { ...r, pic: tempPic, estimasiMulmed: tempEstimasiMulmed, status: 'Proses Desain' } 
         : r
     ));
     setAssigningRequestId(null);
+    setTempEstimasiMulmed('');
     triggerToast(`Permintaan ${reqNo} disetujui & ditugaskan kepada ${tempPic}.`);
   };
 
@@ -579,8 +588,12 @@ export default function App() {
                 <span className="text-zinc-200 font-medium">{viewRequestDetail.jenisKebutuhan}</span>
               </div>
               <div>
-                <span className="text-zinc-500 block">Estimasi Selesai</span>
-                <span className="text-violet-400 font-bold">{viewRequestDetail.estimasiSelesai}</span>
+                <span className="text-zinc-500 block">Deadline Pemohon</span>
+                <span className="text-amber-400 font-bold">{viewRequestDetail.deadlinePemohon || viewRequestDetail.estimasiSelesai}</span>
+              </div>
+              <div>
+                <span className="text-zinc-500 block">Estimasi Mulmed</span>
+                <span className="text-emerald-400 font-bold">{viewRequestDetail.estimasiMulmed || 'Belum Diestimasi'}</span>
               </div>
               <div>
                 <span className="text-zinc-500 block">PIC Desainer / Editor</span>
@@ -736,6 +749,20 @@ export default function App() {
           </div>
 
           <button
+            onClick={() => setActiveTab('jobdesk-pribadi')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'jobdesk-pribadi'
+                ? 'bg-gradient-to-r from-pink-950/60 to-zinc-900 text-pink-300 border-l-4 border-pink-500'
+                : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
+            }`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Jobdesk Pribadi
+          </button>
+
+          <button
             onClick={() => setActiveTab('request-divisi')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'request-divisi'
@@ -811,7 +838,7 @@ export default function App() {
         <header className="border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white">
-              {activeTab === 'beranda' ? 'Quick Action Dashboard' : activeTab === 'pabrik-konten' ? 'Pabrik Konten (Organic Social Media)' : activeTab === 'request-divisi' ? 'Papan Request Divisi' : activeTab === 'daily-checkin' ? 'Morning Briefing & Absensi' : activeTab === 'disciplinary' ? 'Review & Surat Komitmen' : 'KPI Control Center SPV'}
+              {activeTab === 'beranda' ? 'Quick Action Dashboard' : activeTab === 'jobdesk-pribadi' ? 'Jobdesk Harian Eksekutor' : activeTab === 'pabrik-konten' ? 'Pabrik Konten (Organic Social Media)' : activeTab === 'request-divisi' ? 'Papan Request Divisi' : activeTab === 'daily-checkin' ? 'Morning Briefing & Absensi' : activeTab === 'disciplinary' ? 'Review & Surat Komitmen' : 'KPI Control Center SPV'}
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5">
               {activeTab === 'beranda'
@@ -1202,6 +1229,114 @@ export default function App() {
             </>
           )}
 
+          {activeTab === 'jobdesk-pribadi' && (
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zinc-800 pb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span className="p-1.5 rounded bg-pink-600/10 text-pink-400 text-sm">👤</span>
+                    Jobdesk Harian Eksekutor
+                  </h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">Daftar tugas harian khusus untuk masing-masing PIC.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-zinc-400 font-semibold">Pilih Eksekutor:</span>
+                  <select 
+                    value={jobdeskUser}
+                    onChange={(e) => setJobdeskUser(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-700 text-zinc-100 font-bold rounded-lg py-2 px-4 focus:outline-none focus:border-pink-500"
+                  >
+                    {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Kolom Pending / Proses */}
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[500px]">
+                  <h4 className="text-sm font-bold text-blue-400 mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    Sedang Dikerjakan (Proses)
+                  </h4>
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').map(req => (
+                      <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
+                        </div>
+                        <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
+                        <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
+                        
+                        <div className="mt-3 space-y-1">
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-zinc-500">Deadline Pemohon:</span>
+                            <span className="text-amber-400 font-bold">{req.deadlinePemohon || req.estimasiSelesai}</span>
+                          </div>
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-zinc-500">Estimasi Mulmed:</span>
+                            <span className="text-emerald-400 font-bold">{req.estimasiMulmed || req.estimasiSelesai || 'Belum'}</span>
+                          </div>
+                          {req.deadlinePemohon && req.estimasiMulmed && req.estimasiMulmed > req.deadlinePemohon && (
+                            <div className="mt-2 bg-red-950/40 border border-red-900/50 p-1.5 rounded text-[10px] text-red-400 flex items-center gap-1">
+                              <span>⚠️</span> Deadline bentrok! Butuh diskusi dengan {req.pemohon}.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').length === 0 && (
+                      <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang sedang dikerjakan.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Kolom Menunggu QC */}
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[500px]">
+                  <h4 className="text-sm font-bold text-violet-400 mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-violet-500"></span>
+                    Menunggu QC / Revisi
+                  </h4>
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'QC & Revisi Divisi').map(req => (
+                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
+                        </div>
+                        <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
+                        <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
+                      </div>
+                    ))}
+                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'QC & Revisi Divisi').length === 0 && (
+                      <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang menunggu QC.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Kolom Selesai */}
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[500px]">
+                  <h4 className="text-sm font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Selesai & Dikirim
+                  </h4>
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Selesai').map(req => (
+                       <div key={req.no} className="bg-zinc-950 border border-emerald-900/30 p-4 rounded-xl opacity-75">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
+                        </div>
+                        <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
+                        <a href={req.linkHasilAkhir} target="_blank" rel="noreferrer" className="text-[10px] text-emerald-400 underline mt-2 block">Lihat Hasil Akhir</a>
+                      </div>
+                    ))}
+                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Selesai').length === 0 && (
+                      <p className="text-xs text-zinc-500 text-center py-8">Belum ada task yang selesai.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'request-divisi' && (
             <>
               {/* ======================================================================= */}
@@ -1258,11 +1393,11 @@ export default function App() {
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-zinc-400 uppercase">Estimasi Selesai <span className="text-red-400">*</span></label>
+                          <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline Diminta <span className="text-red-400">*</span></label>
                           <input
                             type="date"
                             required
-                            value={requestDraft.estimasiSelesai}
+                            value={requestDraft.deadlinePemohon}
                             onChange={(e) => handleSlaDateChange(e.target.value)}
                             className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
                           />
@@ -1390,16 +1525,23 @@ export default function App() {
                                           <select 
                                             value={tempPic} 
                                             onChange={(e) => setTempPic(e.target.value)}
-                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
+                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100 mb-1"
                                           >
                                             {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                                           </select>
-                                          <div className="flex gap-1.5">
+                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase mt-1">Estimasi Selesai (Tim Mulmed):</label>
+                                          <input 
+                                            type="date"
+                                            value={tempEstimasiMulmed}
+                                            onChange={(e) => setTempEstimasiMulmed(e.target.value)}
+                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
+                                          />
+                                          <div className="flex gap-1.5 mt-2">
                                             <button 
                                               onClick={() => assignRequestPic(req.no)}
                                               className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 rounded"
                                             >
-                                              Konfirmasi
+                                              Simpan
                                             </button>
                                             <button 
                                               onClick={() => setAssigningRequestId(null)}
