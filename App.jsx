@@ -1,127 +1,49 @@
 import React, { useState, useEffect } from 'react';
 
 const BRANDS = [
-  { id: 'all', name: 'All Brands', color: 'border-zinc-700 bg-zinc-800' },
-  { id: 'holding', name: 'Nusafarm Holding', color: 'border-emerald-500/30 bg-emerald-950/20 text-emerald-400' },
-  { id: 'nusaqu', name: 'Nusaqu Fresh Milk', color: 'border-blue-500/30 bg-blue-950/20 text-blue-400' },
-  { id: 'nusawaste', name: 'Nusawaste Bio', color: 'border-teal-500/30 bg-teal-950/20 text-teal-400' },
-  { id: 'bekasi', name: 'Cabang Bekasi', color: 'border-amber-500/30 bg-amber-950/20 text-amber-400' },
-  { id: 'bandung', name: 'Cabang Bandung', color: 'border-violet-500/30 bg-violet-950/20 text-violet-400' }
+  { id: 'all', name: 'Semua Akun', color: 'border-zinc-700 bg-zinc-800' },
+  { id: 'ig-nusaqu', name: 'IG @nusaqu.id', color: 'border-pink-500/30 bg-pink-950/20 text-pink-400' },
+  { id: 'ig-nsf', name: 'IG @nusasentosafarm', color: 'border-emerald-500/30 bg-emerald-950/20 text-emerald-400' },
+  { id: 'ig-bekasi', name: 'IG @nusaqu.bekasi', color: 'border-blue-500/30 bg-blue-950/20 text-blue-400' },
+  { id: 'ig-bandung', name: 'IG @nusaqu.bandung', color: 'border-indigo-500/30 bg-indigo-950/20 text-indigo-400' },
+  { id: 'ig-klaten', name: 'IG @nusaqu.klaten', color: 'border-violet-500/30 bg-violet-950/20 text-violet-400' },
+  { id: 'thr-nusaqu', name: 'Thr @nusaqu.id', color: 'border-zinc-500/30 bg-zinc-950/20 text-zinc-400' },
+  { id: 'tt-nusaqu', name: 'TT @nusaqu.id', color: 'border-black/30 bg-zinc-900/80 text-white' },
+  { id: 'tt-nsf', name: 'TT @nusasentosafarm', color: 'border-black/30 bg-zinc-900/80 text-white' },
+  { id: 'yt-nsf', name: 'YT Nusa Sentosa Farm', color: 'border-red-500/30 bg-red-950/20 text-red-400' },
+  { id: 'yt-nusaqu', name: 'YT NusaQu Indonesia', color: 'border-red-500/30 bg-red-950/20 text-red-400' },
+  { id: 'ig-nusafeed', name: 'IG @nusafeed', color: 'border-amber-500/30 bg-amber-950/20 text-amber-400' },
+  { id: 'ig-nusawaste', name: 'IG @nusawaste.id', color: 'border-teal-500/30 bg-teal-950/20 text-teal-400' },
+  { id: 'ig-qurban', name: 'IG @qurbanpraktiscom', color: 'border-orange-500/30 bg-orange-950/20 text-orange-400' },
+  { id: 'ig-nusaacademy', name: 'IG @nusaacademy.id', color: 'border-cyan-500/30 bg-cyan-950/20 text-cyan-400' },
+  { id: 'ig-bunaaqiqah', name: 'IG @bunaaqiqah', color: 'border-rose-500/30 bg-rose-950/20 text-rose-400' },
+  { id: 'ig-nusahub', name: 'IG @nusahub.co', color: 'border-fuchsia-500/30 bg-fuchsia-950/20 text-fuchsia-400' },
+  { id: 'ig-nusameat', name: 'IG @nusameat.id', color: 'border-red-500/30 bg-red-950/20 text-red-400' },
+  { id: 'ig-nusarich', name: 'IG @nusa_rich', color: 'border-yellow-500/30 bg-yellow-950/20 text-yellow-400' }
 ];
 
 const CREATORS = [
-  { name: 'Fahri (Magang Medsos)', role: 'Social Media Associate', avatar: 'FM', initialRevisionRate: 2.3 },
-  { name: 'Siti (Designer)', role: 'Graphic Designer', avatar: 'SD', initialRevisionRate: 1.1 },
-  { name: 'Budi (Editor)', role: 'Video Editor', avatar: 'BE', initialRevisionRate: 1.8 },
-  { name: 'Amalia (Copywriter)', role: 'Creative Copy', avatar: 'AC', initialRevisionRate: 0.9 },
-  { name: 'Rio (Videographer)', role: 'Creative Director', avatar: 'RV', initialRevisionRate: 1.5 }
+  { name: 'Fathan', role: 'Creative Content Marketing', avatar: 'FT', initialRevisionRate: 1.0 },
+  { name: 'Naufal', role: 'Creative Content Marketing', avatar: 'NF', initialRevisionRate: 1.2 },
+  { name: 'Resti', role: 'Creative Content Marketing', avatar: 'RS', initialRevisionRate: 1.1 },
+  { name: 'Tyo', role: 'Creative Content Marketing', avatar: 'TY', initialRevisionRate: 1.5 }
 ];
 
-const INITIAL_CONTENT_CARDS = [
-  {
-    id: 'c-1',
-    title: 'A Day in the Life of a Modern Chicken Breeder',
-    brand: 'holding',
-    platform: 'TikTok',
-    assignee: 'Fahri (Magang Medsos)',
-    revisionCount: 1,
-    stage: 'Editing', 
-    status: 'Editing',
-    date: '2026-07-16',
-    notes: 'Needs catchy modern hook sound.'
-  },
-  {
-    id: 'c-2',
-    title: 'Nusawaste Organic Household Sorting Tutorial',
-    brand: 'nusawaste',
-    platform: 'Instagram',
-    assignee: 'Siti (Designer)',
-    revisionCount: 0,
-    stage: 'Editing',
-    status: 'QC SPV',
-    date: '2026-07-18',
-    notes: 'Ready for supervisor final sign off.'
-  },
-  {
-    id: 'c-3',
-    title: 'Nusaqu High-Protein Fresh Milk Launch Post',
-    brand: 'nusaqu',
-    platform: 'Instagram',
-    assignee: 'Amalia (Copywriter)',
-    revisionCount: 2,
-    stage: 'Ide',
-    status: 'Ide',
-    date: '2026-07-19',
-    notes: 'Brainstorming creative angles for fitness markets.'
-  },
-  {
-    id: 'c-4',
-    title: 'Grand Opening Promo - Booth Cabang Bekasi',
-    brand: 'bekasi',
-    platform: 'Facebook',
-    assignee: 'Budi (Editor)',
-    revisionCount: 3,
-    stage: 'Publish',
-    status: 'Scheduled',
-    date: '2026-07-20',
-    notes: 'Scheduled for automatic posting at 10:00 AM.'
-  },
-  {
-    id: 'c-5',
-    title: 'Nusawaste Biogas Eco-Energy Explainer Clip',
-    brand: 'nusawaste',
-    platform: 'YouTube',
-    assignee: 'Rio (Videographer)',
-    revisionCount: 0,
-    stage: 'Script/Brief',
-    status: 'Production/Shooting',
-    date: '2026-07-17',
-    notes: 'Shooting at compost field location.'
-  }
-];
+const INITIAL_CONTENT_CARDS = [];
 
-const INITIAL_DIVISION_REQUESTS = [
-  {
-    no: 'REQ-2026-001',
-    tanggalRequest: '2026-07-15',
-    pemohon: 'Rudi Wijaya (Sales Div)',
-    jenisKebutuhan: 'Desain Grafis',
-    namaProject: 'Brosur Pakan Sapi Premium Q3',
-    briefVisual: 'Dominasi warna hijau alam, letakkan logo holding di pojok kanan atas, tonjolkan diskon 15%.',
-    estimasiSelesai: '2026-07-21',
-    pic: 'Siti (Designer)',
-    status: 'Proses Desain', // Stages: 'Review & Antrean', 'Proses Desain', 'QC & Revisi Divisi', 'Selesai'
-    linkHasilAkhir: ''
-  },
-  {
-    no: 'REQ-2026-002',
-    tanggalRequest: '2026-07-16',
-    pemohon: 'Indah Kusuma (PR Div)',
-    jenisKebutuhan: 'Video Pendek',
-    namaProject: 'Video CSR Nusawaste Go-Green',
-    briefVisual: 'Video cinematic durasi 30 detik untuk IG Reels, background penanaman pohon mangrove.',
-    estimasiSelesai: '2026-07-18', // Less than 3 days -> high priority
-    pic: 'Budi (Editor)',
-    status: 'Review & Antrean',
-    linkHasilAkhir: ''
-  },
-  {
-    no: 'REQ-2026-003',
-    tanggalRequest: '2026-07-12',
-    pemohon: 'Hendra (Exhibition Team)',
-    jenisKebutuhan: 'Print Banner',
-    namaProject: 'Roll Banner Expo Peternakan Nasional',
-    briefVisual: 'Ukuran 80x200cm, resolusi cetak tinggi, pasang foto sapi perah kualitas unggul.',
-    estimasiSelesai: '2026-07-15',
-    pic: 'Rio (Videographer)',
-    status: 'Selesai',
-    linkHasilAkhir: 'https://drive.google.com/file/d/sample-banner/view'
-  }
+const INITIAL_DIVISION_REQUESTS = [];
+
+const INITIAL_PILLARS = [
+  { id: 1, brand: 'all', name: 'Edukasi & Tips', description: 'Membagikan insight, life hack, atau pengetahuan terkait industri.', targetPercentage: 40 },
+  { id: 2, brand: 'all', name: 'Hiburan & Tren', description: 'Meme, parodi, atau mengikuti tren audio/video viral.', targetPercentage: 30 },
+  { id: 3, brand: 'all', name: 'Hard Selling', description: 'Promosi langsung, diskon, pengumuman produk baru dengan CTA beli.', targetPercentage: 20 },
+  { id: 4, brand: 'all', name: 'Behind the Scenes', description: 'Memperlihatkan kultur tim untuk kedekatan emosional.', targetPercentage: 10 }
 ];
 
 const PIPELINE_STAGES = [
   { key: 'Ide', label: 'Ide / Draft', icon: '💡', desc: 'Brainstorming & ideasi awal konten' },
   { key: 'Script/Brief', label: 'Script / Brief', icon: '📝', desc: 'Penyusunan naskah & konsep visual' },
+  { key: 'Produksi', label: 'Produksi / Syuting', icon: '🎥', desc: 'Proses take video, VO, atau penyediaan aset mentah' },
   { key: 'Editing', label: 'Editing & QC', icon: '🎬', desc: 'Produksi video, desain grafis & audit' },
   { key: 'Publish', label: 'Publish / Sched', icon: '🚀', desc: 'Konten terbit atau terjadwal rapi' }
 ];
@@ -134,12 +56,15 @@ const REQUEST_STAGES = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('pabrik-konten'); // 'pabrik-konten', 'control-center'
+  const [activeTab, setActiveTab] = useState('beranda'); // 'beranda', 'pabrik-konten', 'control-center', 'daily-checkin', 'disciplinary', 'pillars'
   const [selectedBrand, setSelectedBrand] = useState('all');
   
   /* State lists */
   const [contentCards, setContentCards] = useState(INITIAL_CONTENT_CARDS);
   const [requests, setRequests] = useState(INITIAL_DIVISION_REQUESTS);
+  const [checkins, setCheckins] = useState([]);
+  const [disciplinaryRecords, setDisciplinaryRecords] = useState([]);
+  const [pillars, setPillars] = useState(INITIAL_PILLARS);
   
   /* UI view & active states */
   const [pabrikViewMode, setPabrikViewMode] = useState('pipeline'); 
@@ -149,8 +74,145 @@ export default function App() {
   /* Modals and forms state */
   const [toast, setToast] = useState(null);
   const [qcModalCard, setQcModalCard] = useState(null); 
+  const [revisionNote, setRevisionNote] = useState('');
   const [viewDetailCard, setViewDetailCard] = useState(null); 
   const [viewRequestDetail, setViewRequestDetail] = useState(null);
+  const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
+  const [writeScriptModal, setWriteScriptModal] = useState(null);
+  const [tempScript, setTempScript] = useState('');
+  const [newIdeaDraft, setNewIdeaDraft] = useState({
+    title: '',
+    brand: 'ig-nusaqu',
+    collaborator: '',
+    assignee: 'Fathan',
+    date: '2026-07-20',
+    notes: 'Ditambahkan via menu cepat.',
+    format: 'Reels / Video'
+  });
+
+  const [checkinForm, setCheckinForm] = useState({
+    name: 'Fathan',
+    time: '08:30',
+    plan: ''
+  });
+
+  const handleCheckinSubmit = (e) => {
+    e.preventDefault();
+    if (!checkinForm.plan) {
+      triggerToast('Plan hari ini wajib diisi!', 'error');
+      return;
+    }
+    const isLate = checkinForm.time > '08:15';
+    setCheckins(prev => [
+      {
+        id: Date.now(),
+        name: checkinForm.name,
+        time: checkinForm.time,
+        plan: checkinForm.plan,
+        date: new Date().toLocaleDateString('id-ID'),
+        isLate
+      },
+      ...prev
+    ]);
+    
+    triggerToast(`Check-in berhasil untuk ${checkinForm.name}!`);
+    
+    if (isLate) {
+      setDisciplinaryRecords(prevRecords => {
+        const personRecords = prevRecords.filter(r => r.name === checkinForm.name);
+        const hasSP2 = personRecords.some(r => r.type === 'SP2');
+        const hasSP1 = personRecords.some(r => r.type === 'SP1');
+        const hasCommitment = personRecords.some(r => r.type === 'Komitmen');
+
+        let newType = 'Komitmen';
+        let reason = `Sistem (Auto): Absen telat jam ${checkinForm.time} (Toleransi 08:15).`;
+
+        if (hasSP2) {
+           newType = 'Pelanggaran Fatal'; 
+           reason = `Sistem (Auto): Telat kembali setelah SP2. Harap panggil HRD!`;
+        } else if (hasSP1) {
+           newType = 'SP2';
+           reason = `Sistem (Auto): Mengulangi keterlambatan. Eskalasi otomatis ke SP 2!`;
+        } else if (hasCommitment) {
+           newType = 'SP1';
+           reason = `Sistem (Auto): Melanggar Surat Komitmen. Eskalasi otomatis ke SP 1.`;
+        }
+
+        setTimeout(() => triggerToast(`🚨 AUTO-SANKSI: ${checkinForm.name} dijatuhi ${newType} karena absen telat!`, 'error'), 1000);
+
+        return [...prevRecords, {
+          id: Date.now() + 1,
+          name: checkinForm.name,
+          type: newType,
+          reason,
+          date: new Date().toLocaleDateString('id-ID')
+        }];
+      });
+    }
+
+    setCheckinForm(prev => ({ ...prev, plan: '' }));
+  };
+
+  const handleAddIdeaSubmit = (e) => {
+    e.preventDefault();
+    if (!newIdeaDraft.title) {
+      triggerToast('Judul ide tidak boleh kosong!', 'error');
+      return;
+    }
+    
+    // Auto-determine platform based on brand string
+    let autoPlatform = 'Instagram';
+    if (newIdeaDraft.brand.startsWith('tt-')) autoPlatform = 'TikTok';
+    if (newIdeaDraft.brand.startsWith('yt-')) autoPlatform = 'YouTube';
+    if (newIdeaDraft.brand.startsWith('thr-')) autoPlatform = 'Threads';
+    if (newIdeaDraft.brand.startsWith('fb-')) autoPlatform = 'Facebook';
+
+    addNewContentCard({
+      title: newIdeaDraft.title,
+      brand: newIdeaDraft.brand,
+      collaborator: newIdeaDraft.collaborator || undefined,
+      platform: autoPlatform,
+      format: newIdeaDraft.format,
+      assignee: newIdeaDraft.assignee,
+      date: newIdeaDraft.date,
+      notes: newIdeaDraft.notes
+    });
+    // Auto-sync ke Daily Check-in tim
+    const todayStr = new Date().toLocaleDateString('id-ID');
+    const taskText = `\n- [Auto Task] Bikin konten: ${newIdeaDraft.title}`;
+    
+    setCheckins(prev => {
+      const existingIdx = prev.findIndex(c => c.name === newIdeaDraft.assignee && c.date === todayStr);
+      if (existingIdx >= 0) {
+        const newArr = [...prev];
+        newArr[existingIdx] = {
+          ...newArr[existingIdx],
+          plan: newArr[existingIdx].plan + taskText
+        };
+        return newArr;
+      } else {
+        const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        return [{
+          id: Date.now() + Math.random(),
+          name: newIdeaDraft.assignee,
+          time: nowStr,
+          plan: taskText.trim(),
+          date: todayStr,
+          isLate: nowStr > '08:00'
+        }, ...prev];
+      }
+    });
+
+    setShowAddIdeaModal(false);
+    setNewIdeaDraft({
+      title: '',
+      brand: 'ig-nusaqu',
+      collaborator: '',
+      assignee: 'Fathan',
+      date: '2026-07-20',
+      notes: 'Ditambahkan via menu cepat.'
+    });
+  };
 
   /* Form state for request */
   const [requestDraft, setRequestDraft] = useState({
@@ -166,7 +228,7 @@ export default function App() {
 
   /* Custom state for temporary request action forms (assigning PIC / updating link) */
   const [assigningRequestId, setAssigningRequestId] = useState(null);
-  const [tempPic, setTempPic] = useState('Siti (Designer)');
+  const [tempPic, setTempPic] = useState('Fathan');
   const [deliveryRequestId, setDeliveryRequestId] = useState(null);
   const [tempDeliverableLink, setTempDeliverableLink] = useState('');
 
@@ -184,18 +246,29 @@ export default function App() {
           ? { ...c, stage: 'Script/Brief', status: 'Scripting', notes: `${c.notes || ''} | Ide disetujui` } 
           : c
       ));
+      setActiveSubTab('Script/Brief');
       triggerToast('Ide disetujui! Berhasil dipindahkan ke tahap Script/Brief.');
     } else if (currentStage === 'Script/Brief') {
       setContentCards(prev => prev.map(c => 
         c.id === cardId 
-          ? { ...c, stage: 'Editing', status: 'Editing', notes: `${c.notes || ''} | Script disetujui` } 
+          ? { ...c, stage: 'Produksi', status: 'Syuting/Take', notes: `${c.notes || ''} | Script disetujui` } 
           : c
       ));
-      triggerToast('Script disetujui! Konten masuk ke antrean Editing.');
+      setActiveSubTab('Produksi');
+      triggerToast('Script disetujui! Konten masuk ke tahap Produksi/Syuting.');
+    } else if (currentStage === 'Produksi') {
+      setContentCards(prev => prev.map(c => 
+        c.id === cardId 
+          ? { ...c, stage: 'Editing', status: 'Editing', notes: `${c.notes || ''} | Aset mentah siap` } 
+          : c
+      ));
+      setActiveSubTab('Editing');
+      triggerToast('Aset selesai! Konten dilempar ke meja Editing.');
     } else if (currentStage === 'Editing') {
       const card = contentCards.find(c => c.id === cardId);
       if (card) {
         setQcModalCard(card);
+        setRevisionNote('');
       }
     }
   };
@@ -204,13 +277,22 @@ export default function App() {
     if (!qcModalCard) return;
 
     if (approve) {
+      if (revisionNote.trim() !== '') {
+        triggerToast('Gagal! Anda mengetik catatan revisi tetapi malah memencet tombol "Setujui". Hapus catatan jika memang ingin menyetujui.', 'error');
+        return;
+      }
       setContentCards(prev => prev.map(c => 
         c.id === qcModalCard.id 
           ? { ...c, stage: 'Publish', status: 'Scheduled', notes: `${c.notes} | Disetujui oleh SPV` } 
           : c
       ));
+      setActiveSubTab('Publish');
       triggerToast(`Konten disetujui oleh SPV! Siap dijadwalkan.`);
     } else {
+      if (!revisionNote.trim()) {
+        triggerToast('Wajib mengisi catatan revisi agar tim tahu apa yang perlu diperbaiki!', 'error');
+        return;
+      }
       setContentCards(prev => prev.map(c => 
         c.id === qcModalCard.id 
           ? { 
@@ -218,13 +300,14 @@ export default function App() {
               stage: 'Editing',
               status: 'Editing', 
               revisionCount: c.revisionCount + 1, 
-              notes: `${c.notes} | Revisi diminta oleh SPV` 
+              notes: `${c.notes} | Revisi SPV: ${revisionNote}` 
             } 
           : c
       ));
-      triggerToast(`Revisi diminta. Konten dikembalikan ke tahap Editing.`, 'warning');
+      triggerToast(`Konten dikembalikan untuk Revisi.`);
     }
     setQcModalCard(null);
+    setRevisionNote('');
   };
 
   const publishNow = (cardId) => {
@@ -411,19 +494,31 @@ export default function App() {
               </p>
             </div>
 
-            <div className="p-6 bg-zinc-950/40 border-t border-zinc-800/80 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => handleQcApproval(false)}
-                className="flex-1 bg-zinc-800 hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/50 border border-zinc-700 text-zinc-200 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2"
-              >
-                ✕ Minta Revisi (+1)
-              </button>
-              <button
-                onClick={() => handleQcApproval(true)}
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2"
-              >
-                ✓ Setujui & Jadwalkan
-              </button>
+            <div className="p-6 border-t border-zinc-800/80 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Catatan Revisi SPV (Wajib jika minta revisi)</label>
+                <textarea
+                  value={revisionNote}
+                  onChange={(e) => setRevisionNote(e.target.value)}
+                  placeholder="Ketik bagian mana yang perlu diperbaiki oleh editor..."
+                  rows={3}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-200 focus:outline-none focus:border-red-500/50 resize-none"
+                ></textarea>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => handleQcApproval(false)}
+                  className="flex-1 bg-zinc-900 hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/50 border border-zinc-800 text-zinc-300 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2"
+                >
+                  ✕ Minta Revisi (+1)
+                </button>
+                <button
+                  onClick={() => handleQcApproval(true)}
+                  className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2"
+                >
+                  ✓ Setujui & Jadwalkan
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -533,7 +628,12 @@ export default function App() {
         </div>
       )}
 
-      {}
+      {/* CSV Export Helper */}
+      {(() => {
+        // Expose a global function so it can be called from the UI below without being a re-created closure every render, or just a simple function here.
+        // Actually better to define it as a standard function so we can just bind it.
+      })()}
+
       <aside className="w-full md:w-64 bg-zinc-900 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col shrink-0">
         
         <div className="p-6 border-b border-zinc-800">
@@ -563,19 +663,90 @@ export default function App() {
           </div>
         </div>
 
-        <nav className="p-4 flex-1 space-y-1.5">
+        <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
           <button
-            onClick={() => setActiveTab('pabrik-konten')}
+            onClick={() => setActiveTab('pillars')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === 'pabrik-konten'
-                ? 'bg-gradient-to-r from-violet-950/60 to-zinc-900 text-violet-300 border-l-4 border-violet-500'
+              activeTab === 'pillars'
+                ? 'bg-gradient-to-r from-cyan-950/60 to-zinc-900 text-cyan-300 border-l-4 border-cyan-500'
                 : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
             }`}
           >
             <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            Workspace Dashboard
+            Pilar & Strategi Konten
+          </button>
+
+          <button
+            onClick={() => setActiveTab('beranda')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'beranda'
+                ? 'bg-gradient-to-r from-blue-950/60 to-zinc-900 text-blue-300 border-l-4 border-blue-500'
+                : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
+            }`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Quick Action (Beranda)
+          </button>
+          
+          <div>
+            <button
+              onClick={() => { setActiveTab('pabrik-konten'); setPabrikViewMode('pipeline'); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition ${
+                activeTab === 'pabrik-konten'
+                  ? 'bg-zinc-800/80 text-zinc-100'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
+                </svg>
+                Workspace Dashboard
+              </div>
+            </button>
+            
+            {activeTab === 'pabrik-konten' && pabrikViewMode === 'pipeline' && (
+              <div className="mt-2 ml-4 pl-4 border-l border-zinc-800 space-y-1">
+                {PIPELINE_STAGES.map(stage => {
+                  const isActive = activeSubTab === stage.key;
+                  return (
+                    <button
+                      key={stage.key}
+                      onClick={() => setActiveSubTab(stage.key)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center justify-between ${
+                        isActive 
+                          ? 'bg-violet-950/40 text-violet-300 border-l-2 border-violet-500' 
+                          : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50 border-l-2 border-transparent'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>{stage.icon}</span>
+                        {stage.label}
+                      </span>
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-violet-500 shadow-lg shadow-violet-500/50"></span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setActiveTab('request-divisi')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'request-divisi'
+                ? 'bg-gradient-to-r from-amber-950/60 to-zinc-900 text-amber-300 border-l-4 border-amber-500'
+                : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
+            }`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Request Divisi
           </button>
 
           <button
@@ -590,6 +761,34 @@ export default function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
             </svg>
             Control Center SPV
+          </button>
+
+          <button
+            onClick={() => setActiveTab('daily-checkin')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'daily-checkin'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-zinc-900 text-emerald-300 border-l-4 border-emerald-500'
+                : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
+            }`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Daily Check-in
+          </button>
+
+          <button
+            onClick={() => setActiveTab('disciplinary')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'disciplinary'
+                ? 'bg-gradient-to-r from-rose-950/60 to-zinc-900 text-rose-300 border-l-4 border-rose-500'
+                : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
+            }`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Review & Komitmen
           </button>
         </nav>
 
@@ -612,37 +811,120 @@ export default function App() {
         <header className="border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white">
-              {activeTab === 'pabrik-konten' ? 'Pabrik Konten & Creative Request Portal' : 'KPI Control Center SPV'}
+              {activeTab === 'beranda' ? 'Quick Action Dashboard' : activeTab === 'pabrik-konten' ? 'Pabrik Konten (Organic Social Media)' : activeTab === 'request-divisi' ? 'Papan Request Divisi' : activeTab === 'daily-checkin' ? 'Morning Briefing & Absensi' : activeTab === 'disciplinary' ? 'Review & Surat Komitmen' : 'KPI Control Center SPV'}
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5">
-              {activeTab === 'pabrik-konten' 
-                ? 'Kelola publikasi media sosial organic sekaligus awasi request terintegrasi dari divisi eksternal.' 
-                : 'Analisis produktivitas tim, rata-rata revisi crew magang, dan ketepatan waktu rilis bulanan.'}
+              {activeTab === 'beranda'
+                ? 'Ringkasan peringatan penting yang butuh perhatian Anda segera.'
+                : activeTab === 'pabrik-konten' 
+                ? 'Kelola publikasi media sosial organic dengan workflow berjenjang.' 
+                : activeTab === 'request-divisi'
+                  ? 'Awasi request terintegrasi dari divisi eksternal.'
+                  : activeTab === 'daily-checkin'
+                    ? 'Log check-in harian tim dan tracker kedisiplinan kerja.'
+                    : activeTab === 'disciplinary'
+                      ? 'Dashboard review kinerja, surat komitmen, dan peringatan (SP).'
+                      : 'Analisis produktivitas tim, rata-rata revisi crew magang, dan ketepatan waktu rilis bulanan.'}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-zinc-500">Filter Akun Brand:</span>
-            <div className="inline-flex rounded-lg bg-zinc-950 p-1 border border-zinc-800">
+            <span className="text-zinc-500">Filter Akun:</span>
+            <select 
+              value={selectedBrand} 
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              className="bg-zinc-950 border border-zinc-800 text-zinc-200 rounded-lg py-1.5 px-3 focus:outline-none focus:border-violet-500 cursor-pointer max-w-[200px]"
+            >
               {BRANDS.map(brand => (
-                <button
-                  key={brand.id}
-                  onClick={() => setSelectedBrand(brand.id)}
-                  className={`px-3 py-1.5 rounded-md font-medium transition whitespace-nowrap ${
-                    selectedBrand === brand.id
-                      ? 'bg-zinc-800 text-white shadow'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  {brand.name === 'All Brands' ? 'Semua' : brand.name.replace('Nusa', '').replace('Cabang ', '')}
-                </button>
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
         </header>
 
         {/* Workspace body */}
         <section className="p-6 flex-1 space-y-12 overflow-y-auto">
+
+          {/* ======================================================================= */}
+          {/* TAB 0: QUICK ACTION (BERANDA)                                           */}
+          {/* ======================================================================= */}
+          {activeTab === 'beranda' && (
+            <div className="space-y-6">
+              {(() => {
+                const editingCount = contentCards.filter(c => c.stage === 'Editing').length;
+                const todayStr = new Date().toLocaleDateString('id-ID');
+                const absentCount = CREATORS.filter(c => !checkins.some(ci => ci.name === c.name && ci.date === todayStr)).length;
+                
+                // Get urgent requests (deadline within 3 days and not done)
+                const urgentRequests = requests.filter(r => {
+                  if (r.status === 'Selesai') return false;
+                  const diffDays = Math.ceil((new Date(r.estimasiSelesai) - new Date()) / (1000 * 60 * 60 * 24));
+                  return diffDays <= 3;
+                }).length;
+
+                const isAllClear = editingCount === 0 && absentCount === 0 && urgentRequests === 0;
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {isAllClear && (
+                      <div className="md:col-span-3 bg-gradient-to-r from-emerald-900/40 to-teal-900/20 p-8 rounded-2xl border border-emerald-500/30 text-center flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 border border-emerald-500/50">
+                          <span className="text-3xl">🎉</span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-emerald-400 mb-2">Semua Aman Terkendali, Bos!</h3>
+                        <p className="text-sm text-emerald-500/80">Tidak ada aksi mendesak yang butuh atensi saat ini.</p>
+                      </div>
+                    )}
+
+                    {!isAllClear && (
+                      <>
+                        <div className={`p-6 rounded-2xl border ${editingCount > 0 ? 'bg-amber-950/20 border-amber-500/30' : 'bg-zinc-900/40 border-zinc-800'}`}>
+                          <div className="text-3xl mb-3">{editingCount > 0 ? '👀' : '✅'}</div>
+                          <h3 className={`text-lg font-bold ${editingCount > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>Review QC Konten</h3>
+                          <p className="text-xs text-zinc-400 mt-1 mb-4">
+                            {editingCount > 0 ? `Ada ${editingCount} konten di tahap Editing menunggu review QC Anda.` : 'Tidak ada draf yang butuh review QC.'}
+                          </p>
+                          {editingCount > 0 && (
+                            <button onClick={() => { setActiveTab('pabrik-konten'); setActiveSubTab('Editing'); }} className="text-xs font-bold text-amber-500 hover:text-amber-400 underline">
+                              Review Sekarang ➔
+                            </button>
+                          )}
+                        </div>
+
+                        <div className={`p-6 rounded-2xl border ${absentCount > 0 ? 'bg-red-950/20 border-red-500/30' : 'bg-zinc-900/40 border-zinc-800'}`}>
+                          <div className="text-3xl mb-3">{absentCount > 0 ? '🚨' : '✅'}</div>
+                          <h3 className={`text-lg font-bold ${absentCount > 0 ? 'text-red-400' : 'text-zinc-500'}`}>Kehadiran Tim</h3>
+                          <p className="text-xs text-zinc-400 mt-1 mb-4">
+                            {absentCount > 0 ? `Terdapat ${absentCount} orang yang belum melakukan Check-in absen pagi hari ini.` : 'Seluruh anggota tim sudah absen hari ini.'}
+                          </p>
+                          {absentCount > 0 && (
+                            <button onClick={() => setActiveTab('daily-checkin')} className="text-xs font-bold text-red-500 hover:text-red-400 underline">
+                              Lihat Tracker ➔
+                            </button>
+                          )}
+                        </div>
+
+                        <div className={`p-6 rounded-2xl border ${urgentRequests > 0 ? 'bg-blue-950/20 border-blue-500/30' : 'bg-zinc-900/40 border-zinc-800'}`}>
+                          <div className="text-3xl mb-3">{urgentRequests > 0 ? '🔥' : '✅'}</div>
+                          <h3 className={`text-lg font-bold ${urgentRequests > 0 ? 'text-blue-400' : 'text-zinc-500'}`}>SLA Request Divisi</h3>
+                          <p className="text-xs text-zinc-400 mt-1 mb-4">
+                            {urgentRequests > 0 ? `Terdapat ${urgentRequests} tiket request divisi yang hampir jatuh tempo (< 3 hari).` : 'Tidak ada tiket request mendesak.'}
+                          </p>
+                          {urgentRequests > 0 && (
+                            <button onClick={() => setActiveTab('request-divisi')} className="text-xs font-bold text-blue-500 hover:text-blue-400 underline">
+                              Pantau Papan Request ➔
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {activeTab === 'pabrik-konten' && (
             <>
@@ -679,64 +961,66 @@ export default function App() {
                       </button>
                     </div>
 
-                    <button
-                      onClick={() => {
-                        const title = prompt("Masukkan Judul Ide Konten:");
-                        if (!title) return;
-                        const brandInput = prompt("Masukkan Akun Brand (holding, nusaqu, nusawaste, bekasi, bandung):", "holding");
-                        const platform = prompt("Platform (TikTok, Instagram, YouTube, Facebook):", "TikTok");
-                        const assignee = prompt("Kreator (contoh: Fahri (Magang Medsos), Siti (Designer)):", "Fahri (Magang Medsos)");
-                        const targetDate = prompt("Target Tanggal Rilis (YYYY-MM-DD):", "2026-07-20");
-                        
-                        if (title && brandInput && platform) {
-                          addNewContentCard({
-                            title,
-                            brand: brandInput,
-                            platform,
-                            assignee: assignee || 'Fahri (Magang Medsos)',
-                            date: targetDate || '2026-07-20',
-                            notes: 'Ditambahkan via menu cepat.'
-                          });
-                        }
-                      }}
-                      className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-                      </svg>
-                      Quick Add Idea
-                    </button>
+                    {activeSubTab === 'Ide' && (
+                      <button
+                        onClick={() => setShowAddIdeaModal(true)}
+                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Tambahkan Ide
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Brand Content Counters */}
+                <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-4 w-full">
+                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></span>
+                    Content Radar (18 Akun Aktif)
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-2">
+                    {BRANDS.filter(b => b.id !== 'all').map(brand => {
+                      const count = contentCards.filter(c => c.brand === brand.id || c.collaborator === brand.id).length;
+                      const isZero = count === 0;
+                      return (
+                        <div key={brand.id} className={`flex flex-col p-2.5 rounded-xl border transition-all duration-300 hover:-translate-y-0.5 ${isZero ? 'bg-red-950/20 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.05)] hover:border-red-500/50' : 'bg-zinc-950/60 border-zinc-800 hover:border-violet-500/50 hover:bg-zinc-900'}`}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className={`shrink-0 w-1.5 h-1.5 rounded-full ${isZero ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' : 'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]'}`} />
+                            <span className={`text-sm font-black leading-none ${isZero ? 'text-red-400' : 'text-zinc-100'}`}>{count}</span>
+                          </div>
+                          <span className={`text-[9px] font-semibold leading-tight line-clamp-2 ${isZero ? 'text-red-300' : 'text-zinc-400'}`} title={brand.name}>
+                            {brand.name}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {pabrikViewMode === 'pipeline' ? (
                   <div className="space-y-4">
-                    {/* Horizontal pipeline stage toggles */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-zinc-900/40 p-1.5 rounded-xl border border-zinc-900">
-                      {PIPELINE_STAGES.map(stage => {
-                        const count = filteredContentCards.filter(c => c.stage === stage.key).length;
-                        const isActive = activeSubTab === stage.key;
-                        return (
-                          <button
-                            key={stage.key}
-                            onClick={() => setActiveSubTab(stage.key)}
-                            className={`p-3 rounded-lg text-left transition-all ${
-                              isActive ? 'bg-zinc-800 border border-zinc-700 shadow-md ring-1 ring-violet-500/30' : 'hover:bg-zinc-900/60 border border-transparent'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-lg">{stage.icon}</span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded font-extrabold ${isActive ? 'bg-violet-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>
-                                {count} Konten
-                              </span>
-                            </div>
-                            <div className="mt-2">
-                              <h4 className={`text-xs font-bold ${isActive ? 'text-violet-400' : 'text-zinc-300'}`}>{stage.label}</h4>
-                              <p className="text-[10px] text-zinc-500 line-clamp-1 mt-0.5">{stage.desc}</p>
-                            </div>
-                          </button>
-                        );
-                      })}
+                    {/* PIPELINE NAVIGATION TABS */}
+                    <div className="flex bg-zinc-900/40 p-1.5 rounded-xl border border-zinc-800/60 overflow-x-auto no-scrollbar">
+                      {PIPELINE_STAGES.map(stage => (
+                        <button
+                          key={stage.key}
+                          onClick={() => setActiveSubTab(stage.key)}
+                          className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg min-w-[120px] transition-all duration-300 relative ${
+                            activeSubTab === stage.key
+                              ? 'bg-zinc-800 shadow-md text-white transform scale-[1.02] border border-zinc-700/50'
+                              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/40'
+                          }`}
+                        >
+                          <span className="text-xl mb-1 filter drop-shadow-md">{stage.icon}</span>
+                          <span className="text-[11px] font-bold tracking-wide">{stage.label}</span>
+                          {activeSubTab === stage.key && (
+                            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1/3 h-0.5 rounded-full bg-violet-500 animate-pulse"></div>
+                          )}
+                        </button>
+                      ))}
                     </div>
 
                     {/* Active SM pipeline cards list */}
@@ -757,12 +1041,22 @@ export default function App() {
                               >
                                 <div>
                                   <div className="flex justify-between items-center mb-2">
-                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${brandObj?.color || 'border-zinc-700'}`}>
-                                      {brandObj?.name.replace('Nusa', '')}
+                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded border truncate max-w-[120px] ${brandObj?.color || 'border-zinc-700'}`}>
+                                      {brandObj?.name || card.brand}
                                     </span>
-                                    <span className="text-[10px] text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 font-medium">{card.platform}</span>
+                                    <div className="flex gap-1">
+                                      <span className="text-[9px] font-bold text-cyan-400 bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-900/30">
+                                        {card.format || 'Reels / Video'}
+                                      </span>
+                                      <span className="text-[10px] text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 font-medium">{card.platform}</span>
+                                    </div>
                                   </div>
                                   <h4 className="text-sm font-bold text-zinc-200 group-hover:text-white leading-snug">{card.title}</h4>
+                                  {card.collaborator && (
+                                    <div className="mt-1.5 flex items-center gap-1 text-[9px] font-bold text-violet-400 bg-violet-950/20 px-1.5 py-0.5 rounded w-fit border border-violet-900/30">
+                                      🤝 Collab: {BRANDS.find(b => b.id === card.collaborator)?.name || card.collaborator}
+                                    </div>
+                                  )}
                                   <p className="text-xs text-zinc-500 line-clamp-2 mt-1">{card.notes}</p>
                                 </div>
 
@@ -789,11 +1083,30 @@ export default function App() {
                                     </button>
                                   )}
                                   {activeSubTab === 'Script/Brief' && (
+                                    <div className="space-y-2">
+                                      <button
+                                        onClick={() => {
+                                          setWriteScriptModal(card);
+                                          setTempScript(card.scriptContent || '');
+                                        }}
+                                        className="w-full bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                                      >
+                                        <span className="text-[10px]">📝</span> Tulis Naskah
+                                      </button>
+                                      <button
+                                        onClick={() => advancePipelineStage(card.id, 'Script/Brief')}
+                                        className="w-full bg-violet-600/10 hover:bg-violet-600/30 text-violet-400 border border-violet-500/30 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center"
+                                      >
+                                        Setujui Script ➔
+                                      </button>
+                                    </div>
+                                  )}
+                                  {activeSubTab === 'Produksi' && (
                                     <button
-                                      onClick={() => advancePipelineStage(card.id, 'Script/Brief')}
-                                      className="w-full bg-zinc-950 hover:bg-violet-950/40 hover:text-violet-400 text-zinc-300 border border-zinc-800 rounded-lg py-2 text-xs font-bold transition"
+                                      onClick={() => advancePipelineStage(card.id, 'Produksi')}
+                                      className="w-full bg-violet-600/10 hover:bg-violet-600/30 text-violet-400 border border-violet-500/30 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center"
                                     >
-                                      Setujui Script & Lanjut Editing ➔
+                                      Syuting/Aset Selesai ➔
                                     </button>
                                   )}
                                   {activeSubTab === 'Editing' && (
@@ -829,36 +1142,72 @@ export default function App() {
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                         <div key={day} className="bg-zinc-900 p-2 text-center text-xs font-bold text-zinc-400 border-b border-zinc-800">{day}</div>
                       ))}
-                      {[1, 2, 3].map(i => (
-                        <div key={`empty-${i}`} className="bg-zinc-950/20 p-2 min-h-[80px] border-r border-b border-zinc-800/40" />
-                      ))}
-                      {Array.from({ length: 31 }, (_, index) => {
-                        const dayNumber = index + 1;
-                        const dateStr = `2026-07-${dayNumber.toString().padStart(2, '0')}`;
-                        const dayCards = filteredContentCards.filter(c => c.date === dateStr);
-                        const isToday = dayNumber === 16;
-                        return (
-                          <div key={dayNumber} className={`p-2 min-h-[90px] bg-zinc-950/60 border-r border-b border-zinc-800 flex flex-col justify-between ${isToday ? 'ring-1 ring-inset ring-indigo-500/50 bg-indigo-950/20' : ''}`}>
-                            <span className={`text-[10px] font-black ${isToday ? 'bg-indigo-500 text-white px-1.5 py-0.5 rounded-full' : 'text-zinc-500'}`}>{dayNumber}</span>
-                            <div className="space-y-1 mt-1">
-                              {dayCards.map(card => (
-                                <div key={card.id} onClick={() => setViewDetailCard(card)} className="text-[8px] p-0.5 rounded border truncate bg-zinc-900 border-zinc-800 text-zinc-300 cursor-pointer">
-                                  {card.title}
-                                </div>
-                              ))}
+                      {(() => {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = now.getMonth();
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        const firstDayOfWeek = new Date(year, month, 1).getDay();
+                        
+                        const blanks = Array.from({ length: firstDayOfWeek }).map((_, i) => (
+                          <div key={`empty-${i}`} className="bg-zinc-950/20 p-2 min-h-[80px] border-r border-b border-zinc-800/40" />
+                        ));
+                        
+                        const days = Array.from({ length: daysInMonth }, (_, index) => {
+                          const dayNumber = index + 1;
+                          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+                          const dayCards = filteredContentCards.filter(c => c.date === dateStr);
+                          
+                          const todayLocalStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                          const isToday = dateStr === todayLocalStr;
+                          
+                          return (
+                            <div 
+                              key={dayNumber} 
+                              onClick={() => {
+                                setNewIdeaDraft(prev => ({ ...prev, date: dateStr }));
+                                setShowAddIdeaModal(true);
+                              }}
+                              className={`p-2 min-h-[90px] bg-zinc-950/60 border-r border-b border-zinc-800 flex flex-col justify-between cursor-pointer hover:bg-zinc-800/40 transition relative ${isToday ? 'ring-1 ring-inset ring-indigo-500/50 bg-indigo-950/20' : ''}`}
+                            >
+                              {isToday && <div className="absolute top-0 right-0 w-full h-0.5 bg-indigo-500"></div>}
+                              <div className="flex justify-between items-start">
+                                <span className={`text-[10px] font-black ${isToday ? 'bg-indigo-500 text-white px-1.5 py-0.5 rounded-full' : 'text-zinc-500'}`}>
+                                  {dayNumber}
+                                </span>
+                                {isToday && <span className="text-[8px] font-bold text-indigo-300 uppercase tracking-widest mt-0.5">Today</span>}
+                              </div>
+                              <div className="space-y-1 mt-1">
+                                {dayCards.map(card => (
+                                  <div 
+                                    key={card.id} 
+                                    onClick={(e) => { e.stopPropagation(); setViewDetailCard(card); }} 
+                                    className="flex flex-col text-[8px] p-1.5 rounded border bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-violet-500 transition"
+                                  >
+                                    <span className="font-bold text-cyan-400 mb-0.5 border-b border-zinc-800 pb-0.5">{card.format || 'Reels / Video'}</span>
+                                    <span className="truncate mt-0.5">{card.title}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        });
+                        
+                        return [...blanks, ...days];
+                      })()}
                     </div>
                   </div>
                 )}
               </div>
+            </>
+          )}
 
+          {activeTab === 'request-divisi' && (
+            <>
               {/* ======================================================================= */}
               {/* TIER 2: PAPAN REQUEST DIVISI (CROSS-DIVISIONAL FLOW)                     */}
               {/* ======================================================================= */}
-              <div className="space-y-6 pt-4 border-t border-zinc-900">
+              <div className="space-y-6">
                 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                   <div>
@@ -1156,6 +1505,196 @@ export default function App() {
           )}
 
           {/* ======================================================================= */}
+          {/* TAB: CONTENT PILLARS (STRATEGI KONTEN)                                  */}
+          {/* ======================================================================= */}
+          {activeTab === 'pillars' && (
+            <div className="space-y-6">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span className="p-1.5 rounded bg-cyan-600/10 text-cyan-400 text-sm">🏛️</span>
+                    Pilar & Strategi Konten
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">Definisikan arah komunikasi brand, kategori konten, dan target distribusinya.</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    const name = prompt('Nama Pilar Baru (Misal: Edukasi Bisnis):');
+                    if (name) {
+                      setPillars(prev => [...prev, { id: Date.now(), brand: selectedBrand, name, description: 'Deskripsi pilar belum diisi.', targetPercentage: 0 }]);
+                      triggerToast('Pilar berhasil ditambahkan!', 'success');
+                    }
+                  }}
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2"
+                >
+                  <span>+</span> Tambah Pilar Baru
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {pillars.filter(p => selectedBrand === 'all' || p.brand === 'all' || p.brand === selectedBrand).map(pillar => (
+                  <div key={pillar.id} className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between group hover:border-cyan-500/30 transition">
+                    <div>
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="text-base font-bold text-zinc-100 group-hover:text-cyan-400 transition">{pillar.name}</h4>
+                        <span className="bg-zinc-950 text-cyan-400 px-2 py-1 rounded text-[10px] font-black border border-cyan-900/30">
+                          {pillar.targetPercentage}%
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-400 leading-relaxed mb-4">{pillar.description}</p>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-zinc-800/60 flex gap-2">
+                      <button 
+                        onClick={() => {
+                          const newDesc = prompt(`Ubah deskripsi untuk ${pillar.name}:`, pillar.description);
+                          const newPct = prompt(`Ubah target porsi konten (%) untuk ${pillar.name}:`, pillar.targetPercentage);
+                          if (newDesc && newPct) {
+                            setPillars(prev => prev.map(p => p.id === pillar.id ? { ...p, description: newDesc, targetPercentage: parseInt(newPct) || 0 } : p));
+                            triggerToast('Pilar berhasil diperbarui!');
+                          }
+                        }}
+                        className="flex-1 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 text-[10px] font-bold py-1.5 rounded border border-zinc-800 transition"
+                      >
+                        Edit Pilar
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if(window.confirm(`Hapus pilar ${pillar.name}?`)) {
+                            setPillars(prev => prev.filter(p => p.id !== pillar.id));
+                          }
+                        }}
+                        className="bg-zinc-950 hover:bg-red-950/40 text-red-500 text-[10px] font-bold px-3 py-1.5 rounded border border-zinc-800 hover:border-red-900/30 transition"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================================= */}
+          {/* TAB: DISCIPLINARY & COMMITMENT                                          */}
+          {/* ======================================================================= */}
+          {activeTab === 'disciplinary' && (
+            <div className="space-y-6">
+              
+              <div className="bg-rose-950/20 p-6 rounded-2xl border border-rose-900/50">
+                <h3 className="text-lg font-bold text-rose-400 flex items-center gap-2">
+                  <span className="text-xl">⚖️</span> Dewan Etik & Kedisiplinan Tim
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Pantau pelanggaran SOP (seperti telat check-in pagi atau mangkir tugas). Terbitkan Surat Komitmen, SP 1, hingga SP 2 secara berjenjang jika anggota tim menolak bekerja sama.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                {CREATORS.map(creator => {
+                  const records = disciplinaryRecords.filter(r => r.name === creator.name);
+                  const hasSP2 = records.some(r => r.type === 'SP2');
+                  const hasSP1 = records.some(r => r.type === 'SP1');
+                  const hasCommitment = records.some(r => r.type === 'Komitmen');
+
+                  // Determine active status badge
+                  let statusBadge = <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Aman</span>;
+                  if (hasSP2) statusBadge = <span className="bg-red-500/20 text-red-400 border border-red-500/40 px-2 py-0.5 rounded text-[10px] font-bold">Dalam Pengawasan SP2</span>;
+                  else if (hasSP1) statusBadge = <span className="bg-orange-500/20 text-orange-400 border border-orange-500/40 px-2 py-0.5 rounded text-[10px] font-bold">Peringatan SP1</span>;
+                  else if (hasCommitment) statusBadge = <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2 py-0.5 rounded text-[10px] font-bold">Surat Komitmen</span>;
+
+                  return (
+                    <div key={creator.name} className={`bg-zinc-900/40 border ${hasSP2 ? 'border-red-900/50 shadow-[0_0_15px_rgba(220,38,38,0.1)]' : 'border-zinc-800'} rounded-2xl p-5 flex flex-col justify-between`}>
+                      <div>
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center font-black">
+                              {creator.avatar}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-zinc-200 text-sm">{creator.name}</h4>
+                              <p className="text-[10px] text-zinc-500">{creator.role}</p>
+                            </div>
+                          </div>
+                          {statusBadge}
+                        </div>
+
+                        <div className="space-y-2 mb-6">
+                          <h5 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800 pb-1">Riwayat Pelanggaran</h5>
+                          {records.length === 0 ? (
+                            <p className="text-xs text-zinc-600 italic">Belum ada catatan indisipliner.</p>
+                          ) : (
+                            <ul className="space-y-2">
+                              {records.map(rec => (
+                                <li key={rec.id} className="text-[10px] bg-zinc-950 p-2 rounded border border-zinc-800/80">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <strong className={`
+                                      ${rec.type === 'SP2' ? 'text-red-400' : rec.type === 'SP1' ? 'text-orange-400' : 'text-amber-400'}
+                                    `}>{rec.type}</strong>
+                                    <span className="text-zinc-600">{rec.date}</span>
+                                  </div>
+                                  <span className="text-zinc-400">{rec.reason}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-zinc-800/60 space-y-2">
+                        <p className="text-[10px] text-zinc-500 text-center mb-2">Tindakan Pendisiplinan (SPV Only)</p>
+                        <button 
+                          onClick={() => {
+                            const reason = prompt(`Berikan alasan Surat Komitmen untuk ${creator.name} (Misal: Telat check-in 3 hari berturut-turut, tidak mengerjakan konten):`);
+                            if(reason) {
+                              setDisciplinaryRecords(prev => [...prev, { id: Date.now(), name: creator.name, type: 'Komitmen', reason, date: new Date().toLocaleDateString('id-ID') }]);
+                              triggerToast(`Surat Komitmen untuk ${creator.name} diterbitkan.`, 'success');
+                            }
+                          }}
+                          className="w-full bg-zinc-950 hover:bg-amber-950/40 text-amber-500 border border-amber-900/30 rounded-lg py-2 text-xs font-bold transition"
+                        >
+                          📝 Buat Surat Komitmen
+                        </button>
+                        
+                        <div className="grid grid-cols-2 gap-2">
+                          <button 
+                            onClick={() => {
+                              const reason = prompt(`Berikan alasan Surat Peringatan (SP 1) untuk ${creator.name}:`);
+                              if(reason) {
+                                setDisciplinaryRecords(prev => [...prev, { id: Date.now(), name: creator.name, type: 'SP1', reason, date: new Date().toLocaleDateString('id-ID') }]);
+                                triggerToast(`SP 1 untuk ${creator.name} resmi diterbitkan!`, 'warning');
+                              }
+                            }}
+                            className="w-full bg-zinc-950 hover:bg-orange-950/40 text-orange-500 border border-orange-900/30 rounded-lg py-2 text-xs font-bold transition"
+                          >
+                            ⚠️ SP 1
+                          </button>
+                          
+                          <button 
+                            onClick={() => {
+                              if(window.confirm(`PERINGATAN: Anda akan menerbitkan SP 2 untuk ${creator.name}. Lanjutkan?`)) {
+                                const reason = prompt(`Alasan final SP 2 untuk ${creator.name}:`);
+                                if(reason) {
+                                  setDisciplinaryRecords(prev => [...prev, { id: Date.now(), name: creator.name, type: 'SP2', reason, date: new Date().toLocaleDateString('id-ID') }]);
+                                  triggerToast(`SP 2 FINAL untuk ${creator.name} diterbitkan!`, 'error');
+                                }
+                              }
+                            }}
+                            className="w-full bg-zinc-950 hover:bg-red-950/40 text-red-500 border border-red-900/30 rounded-lg py-2 text-xs font-bold transition"
+                          >
+                            🚨 SP 2
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+          )}
+
+          {/* ======================================================================= */}
           {/* TAB 2: CONTROL CENTER (SPV KPI ANALYTICS)                               */}
           {/* ======================================================================= */}
           {activeTab === 'control-center' && (
@@ -1169,12 +1708,46 @@ export default function App() {
                     Evaluasi performa bulanan, pengawasan kriteria draf rilis, penyelesaian tiket SLA divisi, dan konsistensi publikasi.
                   </p>
                 </div>
-                <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-center shrink-0 min-w-[120px]">
-                  <span className="text-[10px] text-zinc-500 block uppercase font-bold">Status Operasional</span>
-                  <span className="text-emerald-400 font-extrabold text-sm flex items-center justify-center gap-1.5 mt-0.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    OPTIMAL
-                  </span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <button
+                    onClick={() => {
+                      let csvContent = "data:text/csv;charset=utf-8,";
+                      csvContent += "ID,Judul Konten,Brand,Platform,PIC (Assignee),Tahap,Status,Total Revisi,Tanggal Rilis\n";
+                      contentCards.forEach(c => {
+                        const row = [
+                          c.id,
+                          `"${c.title.replace(/"/g, '""')}"`,
+                          c.brand,
+                          c.platform,
+                          c.assignee,
+                          c.stage,
+                          c.status,
+                          c.revisionCount,
+                          c.date
+                        ].join(",");
+                        csvContent += row + "\n";
+                      });
+                      const encodedUri = encodeURI(csvContent);
+                      const link = document.createElement("a");
+                      link.setAttribute("href", encodedUri);
+                      link.setAttribute("download", `Laporan_Konten_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.csv`);
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      triggerToast("Laporan CSV berhasil diunduh!", "success");
+                    }}
+                    className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Tarik Laporan Akhir Bulan
+                  </button>
+                  <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-center min-w-[120px]">
+                    <span className="text-[10px] text-zinc-500 block uppercase font-bold">Status Operasional</span>
+                    <span className="text-emerald-400 font-extrabold text-sm flex items-center justify-center gap-1.5 mt-0.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      OPTIMAL
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -1306,10 +1879,304 @@ export default function App() {
 
               </div>
 
+                {/* Widget D: Kedisiplinan & Log Kehadiran */}
+                <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 space-y-6 mt-8">
+                  <div>
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-300">Kedisiplinan & Log Kehadiran</h4>
+                    <p className="text-xs text-zinc-500 mt-1">Laporan absen pagi (Check-in) tim beserta tracker keterlambatan harian.</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {CREATORS.map(creator => {
+                      const creatorCheckins = checkins.filter(c => c.name === creator.name);
+                      const lateCount = creatorCheckins.filter(c => c.isLate).length;
+                      const onTimeCount = creatorCheckins.length - lateCount;
+                      
+                      return (
+                        <div key={creator.name} className="bg-zinc-950 p-4 rounded-xl border border-zinc-800/80">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-300">
+                              {creator.avatar}
+                            </div>
+                            <div>
+                              <span className="text-xs font-bold text-zinc-200 block">{creator.name}</span>
+                              <span className="text-[9px] text-zinc-500 block uppercase">{creator.role}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                            <div className="bg-emerald-950/20 border border-emerald-900/30 p-2 rounded-lg">
+                              <span className="block font-bold text-emerald-400">{onTimeCount}</span>
+                              <span className="text-[9px] text-zinc-500 uppercase">On-Time</span>
+                            </div>
+                            <div className={`p-2 rounded-lg ${lateCount > 0 ? 'bg-red-950/20 border border-red-900/30' : 'bg-zinc-900 border border-zinc-800/50'}`}>
+                              <span className={`block font-bold ${lateCount > 0 ? 'text-red-400' : 'text-zinc-500'}`}>{lateCount}</span>
+                              <span className="text-[9px] text-zinc-500 uppercase">Late</span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+            </div>
+          )}
+
+          {/* ======================================================================= */}
+          {/* TAB 4: DAILY CHECK-IN TEAM                                              */}
+          {/* ======================================================================= */}
+          {activeTab === 'daily-checkin' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Checkin Form Widget */}
+              <div className="lg:col-span-1 bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 self-start">
+                <h3 className="text-lg font-bold text-zinc-100 mb-6 flex items-center gap-2">
+                  <span className="p-1.5 rounded bg-emerald-600/20 text-emerald-400">⏱️</span>
+                  Check-in Hari Ini
+                </h3>
+                <form onSubmit={handleCheckinSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Nama Tim</label>
+                    <select
+                      required
+                      value={checkinForm.name}
+                      onChange={(e) => setCheckinForm({...checkinForm, name: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    >
+                      {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name} - {c.role}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Jam Kedatangan (Maks 08:00)</label>
+                    <input
+                      type="time"
+                      required
+                      value={checkinForm.time}
+                      onChange={(e) => setCheckinForm({...checkinForm, time: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Daily Plan / Target Selesai Hari Ini</label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={checkinForm.plan}
+                      onChange={(e) => setCheckinForm({...checkinForm, plan: e.target.value})}
+                      placeholder="1. Edit video Nusaqu&#10;2. Bikin script konten NSF&#10;3. Follow-up divisi ..."
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
+                    ></textarea>
+                  </div>
+                  <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/30 transition">
+                    Submit Check-in
+                  </button>
+                </form>
+              </div>
+
+              {/* Feed/History Log */}
+              <div className="lg:col-span-2">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-bold text-zinc-100">Live Team Tracker</h3>
+                  <span className="text-[10px] text-zinc-500 bg-zinc-950 px-3 py-1 rounded-full border border-zinc-800">
+                    Total Check-in: {checkins.length}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {checkins.length === 0 ? (
+                    <div className="bg-zinc-900/20 border border-zinc-800/50 rounded-2xl p-12 text-center text-zinc-500">
+                      Belum ada laporan absen hari ini. Silakan tim mengisi check-in di samping.
+                    </div>
+                  ) : (
+                    checkins.map(ci => (
+                      <div key={ci.id} className={`p-5 rounded-2xl border ${ci.isLate ? 'bg-red-950/10 border-red-900/30' : 'bg-zinc-900/40 border-zinc-800'} flex gap-4`}>
+                        <div className="shrink-0 flex flex-col items-center">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-lg ${ci.isLate ? 'bg-red-900/50 text-red-300' : 'bg-emerald-900/50 text-emerald-300'}`}>
+                            {CREATORS.find(c => c.name === ci.name)?.avatar || 'U'}
+                          </div>
+                          <span className={`text-[9px] mt-2 font-bold px-1.5 py-0.5 rounded ${ci.isLate ? 'bg-red-500/20 text-red-400' : 'bg-zinc-800 text-zinc-400'}`}>
+                            {ci.time}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex justify-between items-start mb-1">
+                            <div>
+                              <span className="font-bold text-zinc-100 text-sm mr-2">{ci.name}</span>
+                              {ci.isLate && <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">LATE</span>}
+                            </div>
+                            <span className="text-[10px] text-zinc-500">{ci.date}</span>
+                          </div>
+                          <p className="text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/50 mt-2">
+                            {ci.plan}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
         </section>
+
+        {showAddIdeaModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              <button onClick={() => setShowAddIdeaModal(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="p-1.5 rounded bg-violet-600/20 text-violet-400">💡</span>
+                Tambahkan Ide Konten
+              </h3>
+              
+              <form onSubmit={handleAddIdeaSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Judul Konten <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={newIdeaDraft.title}
+                    onChange={(e) => setNewIdeaDraft({...newIdeaDraft, title: e.target.value})}
+                    placeholder="Contoh: Vlog Panen Sapi Perah"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Akun Utama <span className="text-red-500">*</span></label>
+                    <select
+                      required
+                      value={newIdeaDraft.brand}
+                      onChange={(e) => setNewIdeaDraft({...newIdeaDraft, brand: e.target.value, collaborator: e.target.value === newIdeaDraft.collaborator ? '' : newIdeaDraft.collaborator})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                    >
+                      {BRANDS.filter(b => b.id !== 'all').map(brand => (
+                        <option key={brand.id} value={brand.id}>{brand.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Kolaborator (Opsional)</label>
+                    <select
+                      value={newIdeaDraft.collaborator}
+                      onChange={(e) => setNewIdeaDraft({...newIdeaDraft, collaborator: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                    >
+                      <option value="">-- Tidak Ada --</option>
+                      {BRANDS.filter(b => b.id !== 'all' && b.id !== newIdeaDraft.brand).map(brand => (
+                        <option key={brand.id} value={brand.id}>{brand.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Format</label>
+                    <select
+                      value={newIdeaDraft.format}
+                      onChange={(e) => setNewIdeaDraft({...newIdeaDraft, format: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                    >
+                      <option value="Reels / Video">Reels / Video</option>
+                      <option value="Feed / Carousel">Feed / Carousel</option>
+                      <option value="Story">Story</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">PIC Kreator</label>
+                    <select
+                      value={newIdeaDraft.assignee}
+                      onChange={(e) => setNewIdeaDraft({...newIdeaDraft, assignee: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                    >
+                      {CREATORS.map(c => (
+                        <option key={c.name} value={c.name}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Target Rilis</label>
+                    <input
+                      type="date"
+                      value={newIdeaDraft.date}
+                      onChange={(e) => setNewIdeaDraft({...newIdeaDraft, date: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-violet-500 cursor-text"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 flex justify-end gap-3">
+                  <button type="button" onClick={() => setShowAddIdeaModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white transition">Batal</button>
+                  <button type="submit" className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition">Simpan Ide</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {writeScriptModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-2xl shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              <button onClick={() => setWriteScriptModal(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-white">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <span className="p-1.5 rounded bg-blue-600/20 text-blue-400">📝</span>
+                Tulis Naskah / Script
+              </h3>
+              <p className="text-sm text-zinc-400 mb-6 font-semibold">{writeScriptModal.title}</p>
+              
+              <div className="space-y-4">
+                <textarea
+                  value={tempScript}
+                  onChange={(e) => setTempScript(e.target.value)}
+                  placeholder="Tulis naskah video/caption di sini..."
+                  rows={10}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 focus:outline-none focus:border-blue-500 leading-relaxed resize-none"
+                ></textarea>
+
+                <div className="pt-4 flex flex-col-reverse sm:flex-row justify-between items-center border-t border-zinc-800/80 gap-4">
+                  <button 
+                    onClick={() => {
+                       const waUrl = `https://wa.me/?text=${encodeURIComponent(`*Script Konten: ${writeScriptModal.title}*\n\n${tempScript}`)}`;
+                       window.open(waUrl, '_blank');
+                    }}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/30 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"
+                  >
+                    Kirim ke WA ➔
+                  </button>
+                  
+                  <div className="flex gap-3 w-full sm:w-auto justify-end">
+                    <button onClick={() => setWriteScriptModal(null)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white transition">Batal</button>
+                    <button 
+                      onClick={() => {
+                        setContentCards(prev => prev.map(c => 
+                          c.id === writeScriptModal.id ? { ...c, scriptContent: tempScript } : c
+                        ));
+                        setWriteScriptModal(null);
+                        triggerToast('Naskah berhasil disimpan!');
+                      }}
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition"
+                    >
+                      Simpan Naskah
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
 
