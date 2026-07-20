@@ -40,6 +40,14 @@ const INITIAL_PILLARS = [
   { id: 4, brand: 'all', name: 'Behind the Scenes', description: 'Memperlihatkan kultur tim untuk kedekatan emosional.', targetPercentage: 10 }
 ];
 
+const PIPELINE_STAGES = [
+  { key: 'Ide', label: 'Ide / Draft', icon: '💡', desc: 'Brainstorming & ideasi awal konten' },
+  { key: 'Script/Brief', label: 'Script / Brief', icon: '📝', desc: 'Penyusunan naskah & konsep visual' },
+  { key: 'Produksi', label: 'Produksi / Syuting', icon: '🎥', desc: 'Proses take video, VO, atau penyediaan aset mentah' },
+  { key: 'Editing', label: 'Editing & QC', icon: '🎬', desc: 'Produksi video, desain grafis & audit' },
+  { key: 'Publish', label: 'Publish / Sched', icon: '🚀', desc: 'Konten terbit atau terjadwal rapi' }
+];
+
 const REQUEST_STAGES = [
   { key: 'Review & Antrean', label: 'Review & Antrean', icon: '📥', color: 'text-amber-400 bg-amber-500/10' },
   { key: 'Proses Desain', label: 'Proses Desain / Editing', icon: '💻', color: 'text-blue-400 bg-blue-500/10' },
