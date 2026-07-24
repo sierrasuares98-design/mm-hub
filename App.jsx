@@ -543,7 +543,7 @@ export default function App() {
   const publishedCount = contentCards.filter(c => c.status === 'Published').length;
   const scheduledCount = contentCards.filter(c => c.status === 'Scheduled').length;
   const totalRelevantContent = contentCards.length;
-  const consistencyScore = Math.round(((publishedCount + scheduledCount) / totalRelevantContent) * 100);
+  const consistencyScore = totalRelevantContent > 0 ? Math.round(((publishedCount + scheduledCount) / totalRelevantContent) * 100) : 0;
 
   const filteredContentCards = selectedBrand === 'all' 
     ? contentCards 
