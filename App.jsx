@@ -255,7 +255,9 @@ export default function App() {
     briefVisual: '',
     deadlinePemohon: '',
     pic: 'Belum Ditunjuk',
-    linkHasilAkhir: ''
+    linkHasilAkhir: '',
+    eventDate: '',
+    eventLocation: ''
   });
   const [slaWarning, setSlaWarning] = useState(false);
 
@@ -374,13 +376,18 @@ export default function App() {
     const count = requests.length + 1;
     const requestNo = `REQ-MM-${String(count).padStart(3, '0')}`;
 
+    let finalBrief = requestDraft.briefVisual || 'Tidak ada brief visual khusus.';
+    if (requestDraft.jenisKebutuhan === 'Syuting / Liputan Event') {
+      finalBrief = `[LIPUTAN EVENT]\n📅 Waktu: ${requestDraft.eventDate ? requestDraft.eventDate.replace('T', ', Jam ') : '-'}\n📍 Lokasi: ${requestDraft.eventLocation || '-'}\n\nDetail Tambahan: ${finalBrief}`;
+    }
+
     const newRequest = {
       no: requestNo,
       tanggalRequest: new Date().toISOString().split('T')[0],
       pemohon: requestDraft.pemohon,
       jenisKebutuhan: requestDraft.jenisKebutuhan,
       namaProject: requestDraft.namaProject,
-      briefVisual: requestDraft.briefVisual || 'Tidak ada brief visual khusus.',
+      briefVisual: finalBrief,
       deadlinePemohon: requestDraft.deadlinePemohon,
       estimasiSelesai: requestDraft.deadlinePemohon,
       estimasiMulmed: '',
@@ -406,7 +413,9 @@ export default function App() {
       briefVisual: '',
       deadlinePemohon: '',
       pic: 'Belum Ditunjuk',
-      linkHasilAkhir: ''
+      linkHasilAkhir: '',
+      eventDate: '',
+      eventLocation: ''
     });
     
     setSlaWarning(false);
@@ -1568,6 +1577,7 @@ export default function App() {
                           >
                             <option value="Desain Grafis">Desain Grafis</option>
                             <option value="Video Pendek">Video Pendek</option>
+                            <option value="Syuting / Liputan Event">Syuting / Liputan Event</option>
                             <option value="Print Banner">Print Banner</option>
                             <option value="Materi Sosmed">Materi Sosmed</option>
                           </select>
@@ -1584,6 +1594,32 @@ export default function App() {
                           />
                         </div>
                       </div>
+
+                      {requestDraft.jenisKebutuhan === 'Syuting / Liputan Event' && (
+                        <div className="grid grid-cols-2 gap-3 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 animate-slide-in">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-400 uppercase">Waktu Acara <span className="text-red-400">*</span></label>
+                            <input
+                              type="datetime-local"
+                              required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
+                              value={requestDraft.eventDate}
+                              onChange={(e) => setRequestDraft(prev => ({ ...prev, eventDate: e.target.value }))}
+                              className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-400 uppercase">Lokasi <span className="text-red-400">*</span></label>
+                            <input
+                              type="text"
+                              placeholder="Cth: Gedung A"
+                              required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
+                              value={requestDraft.eventLocation}
+                              onChange={(e) => setRequestDraft(prev => ({ ...prev, eventLocation: e.target.value }))}
+                              className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       {/* Strict SLA Alert */}
                       {slaWarning && (
