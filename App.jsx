@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Activity, CheckCircle, Clock, AlertTriangle, MessageSquare, TrendingUp, Users } from 'lucide-react';
+import { ShieldAlert, Activity, CheckCircle, Clock, AlertTriangle, MessageSquare, TrendingUp, Users, Calculator } from 'lucide-react';
 import { supabase } from './supabaseClient';
+import KpiCalculator from './KpiCalculator';
 
 const BRANDS = [
   { id: 'all', name: 'Semua Akun', color: 'border-zinc-700 bg-zinc-800' },
@@ -958,6 +959,18 @@ export default function App() {
             </svg>
             Review & Komitmen
           </button>
+
+          <button
+            onClick={() => setActiveTab('kpi-kalkulator')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'kpi-kalkulator'
+                ? 'bg-gradient-to-r from-teal-950/60 to-zinc-900 text-teal-300 border-l-4 border-teal-500'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
+            }`}
+          >
+            <Calculator className="w-5 h-5 shrink-0" />
+            Kalkulator KPI
+          </button>
         </nav>
 
         <div className="p-4 border-t border-zinc-800/80 bg-zinc-950/30 text-xs text-zinc-500 space-y-2">
@@ -979,7 +992,7 @@ export default function App() {
         <header className="border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white">
-              {activeTab === 'beranda' ? 'Quick Action Dashboard' : activeTab === 'jobdesk-pribadi' ? 'Jobdesk Harian Eksekutor' : activeTab === 'pabrik-konten' ? 'Pabrik Konten (Organic Social Media)' : activeTab === 'request-divisi' ? 'Papan Request Divisi' : activeTab === 'daily-checkin' ? 'Morning Briefing & Absensi' : activeTab === 'disciplinary' ? 'Review & Surat Komitmen' : 'KPI Control Center SPV'}
+              {activeTab === 'beranda' ? 'Quick Action Dashboard' : activeTab === 'jobdesk-pribadi' ? 'Jobdesk Harian Eksekutor' : activeTab === 'pabrik-konten' ? 'Pabrik Konten (Organic Social Media)' : activeTab === 'request-divisi' ? 'Papan Request Divisi' : activeTab === 'daily-checkin' ? 'Morning Briefing & Absensi' : activeTab === 'disciplinary' ? 'Review & Surat Komitmen' : activeTab === 'kpi-kalkulator' ? 'Kalkulator KPI (Group & Individu)' : 'KPI Control Center SPV'}
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5">
               {activeTab === 'beranda'
@@ -992,7 +1005,9 @@ export default function App() {
                     ? 'Log check-in harian tim dan tracker kedisiplinan kerja.'
                     : activeTab === 'disciplinary'
                       ? 'Dashboard review kinerja, surat komitmen, dan peringatan (SP).'
-                      : 'Analisis produktivitas tim, rata-rata revisi crew magang, dan ketepatan waktu rilis bulanan.'}
+                      : activeTab === 'kpi-kalkulator'
+                        ? 'Hitung otomatis skor KPI dan performa berdasarkan rumus yang telah ditentukan.'
+                        : 'Analisis produktivitas tim, rata-rata revisi crew magang, dan ketepatan waktu rilis bulanan.'}
             </p>
           </div>
 
@@ -2534,6 +2549,15 @@ export default function App() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* TAB: KALKULATOR KPI                                                     */}
+        {/* ======================================================================= */}
+        {activeTab === 'kpi-kalkulator' && (
+          <div className="p-6">
+            <KpiCalculator />
           </div>
         )}
 
