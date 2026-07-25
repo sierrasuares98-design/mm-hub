@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Users, Target, Award, Calculator, CheckCircle, Percent } from 'lucide-react';
+import { TrendingUp, Users, Target, Award, Calculator, CheckCircle, Percent, BarChart2, AlertCircle } from 'lucide-react';
 
 export default function KpiCalculator() {
   const [activeKpiTab, setActiveKpiTab] = useState('group'); // 'group' or 'individual'
@@ -22,6 +22,15 @@ export default function KpiCalculator() {
   const [ctrViews, setCtrViews] = useState('');
   const [leadChats, setLeadChats] = useState('');
 
+  // Group Extensions
+  const [weeklyInsight, setWeeklyInsight] = useState('');
+  const [metaSpend, setMetaSpend] = useState('');
+  const [metaClicks, setMetaClicks] = useState('');
+  const [metaRevenue, setMetaRevenue] = useState('');
+  const [topKonten, setTopKonten] = useState('');
+  const [badKonten, setBadKonten] = useState('');
+  const [medsosProgress, setMedsosProgress] = useState('');
+
   // Group Computations
   const reachGrowth = reachPrev ? (((Number(reachCurr) - Number(reachPrev)) / Number(reachPrev)) * 100).toFixed(1) : 0;
   const totalViews = Number(vTiktok) + Number(vReels) + Number(vYt);
@@ -30,6 +39,8 @@ export default function KpiCalculator() {
   const valRatio = valTotalInt ? ((totalSharesSaves / Number(valTotalInt)) * 100).toFixed(1) : 0;
   const ctrRate = ctrViews ? ((Number(ctrClicks) / Number(ctrViews)) * 100).toFixed(2) : 0;
   const leadGenRate = ctrClicks ? ((Number(leadChats) / Number(ctrClicks)) * 100).toFixed(1) : 0;
+  const roas = metaSpend && Number(metaSpend) > 0 ? (Number(metaRevenue) / Number(metaSpend)).toFixed(2) : 0;
+  const cpr = metaClicks && Number(metaClicks) > 0 ? (Number(metaSpend) / Number(metaClicks)).toFixed(0) : 0;
 
   // --- INDIVIDUAL KPI STATE ---
   const [indRole, setIndRole] = useState('scriptwriter'); // scriptwriter, video, graphic
@@ -249,6 +260,74 @@ export default function KpiCalculator() {
                   <span className="font-bold text-lg text-emerald-400">{leadGenRate}%</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Marketing Analytics & Insights */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden mt-6">
+            <div className="bg-zinc-800/30 p-4 border-b border-zinc-800">
+              <h4 className="text-sm font-bold text-zinc-200 flex items-center gap-2"><BarChart2 size={16} className="text-blue-400"/> Analytics & Insights (Ads & Konten)</h4>
+            </div>
+            <div className="p-6 grid grid-cols-1 gap-8">
+              
+              <div className="space-y-4">
+                <h5 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">1. Meta Ads Performance & ROAS</h5>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-500">Ad Spend (Rp)</label>
+                    <input type="number" value={metaSpend} onChange={e=>setMetaSpend(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none"/>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-500">Total Link Clicks</label>
+                    <input type="number" value={metaClicks} onChange={e=>setMetaClicks(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none"/>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-zinc-500">Revenue (Rp)</label>
+                    <input type="number" value={metaRevenue} onChange={e=>setMetaRevenue(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none"/>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-zinc-950 p-3 rounded-lg flex justify-between items-center border border-zinc-800/50">
+                    <span className="text-xs text-zinc-400">Cost per Result (CPR):</span>
+                    <span className="font-bold text-lg text-amber-400">Rp {Number(cpr).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="bg-zinc-950 p-3 rounded-lg flex justify-between items-center border border-zinc-800/50">
+                    <span className="text-xs text-zinc-400">ROAS:</span>
+                    <span className={`font-bold text-lg ${roas >= 2 ? 'text-emerald-400' : 'text-red-400'}`}>{roas}x</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <h5 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">2. Top / Bad Performance Konten</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-zinc-500 flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Top Konten (Tulis Judul)</label>
+                      <textarea rows="2" value={topKonten} onChange={e=>setTopKonten(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none resize-none placeholder-zinc-700" placeholder="Misal: Reels Edukasi Bisnis #12 (100k views)..."></textarea>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-500 flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Bad Konten (Tulis Judul)</label>
+                      <textarea rows="2" value={badKonten} onChange={e=>setBadKonten(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-red-500 focus:outline-none resize-none placeholder-zinc-700" placeholder="Misal: Postingan Promo Diskon (5 likes)..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h5 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">3. Progress Medsos & Insight</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-zinc-500">Laporan Progress Akun Medsos (IG, YT, dsb)</label>
+                      <textarea rows="2" value={medsosProgress} onChange={e=>setMedsosProgress(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none resize-none placeholder-zinc-700" placeholder="Progress followers, trend impresi minggu ini..."></textarea>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-500">Weekly Insights / Evaluasi</label>
+                      <textarea rows="2" value={weeklyInsight} onChange={e=>setWeeklyInsight(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none resize-none placeholder-zinc-700" placeholder="Apa yang berjalan baik? Apa yang harus diperbaiki minggu depan?"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
