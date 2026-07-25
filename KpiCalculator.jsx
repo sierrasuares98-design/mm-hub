@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { TrendingUp, Users, Target, Award, Calculator, CheckCircle, Percent, BarChart2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, Users, Target, Award, Calculator, CheckCircle, Percent, BarChart2, AlertCircle, Save, LineChart as LineChartIcon } from 'lucide-react';
+import { supabase } from './supabaseClient';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function KpiCalculator() {
-  const [activeKpiTab, setActiveKpiTab] = useState('group'); // 'group' or 'individual'
+  const [activeKpiTab, setActiveKpiTab] = useState('group'); // 'group', 'individual', 'dashboard'
 
   // --- GROUP KPI STATE ---
   const [reachPrev, setReachPrev] = useState('');
@@ -94,6 +96,76 @@ export default function KpiCalculator() {
   const gdSlaScore = gdTotalTask ? ((Number(gdOnTime) / Number(gdTotalTask)) * 100).toFixed(1) : 0;
   const gdRevScore = gdTotalTask ? (Number(gdRevisions) / Number(gdTotalTask)).toFixed(2) : 0;
 
+  // --- DATABASE & CHART ---
+  const [reports, setReports] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  useEffect(() => {
+    if(activeKpiTab === 'dashboard') {
+      fetchReports();
+    }
+  }, [activeKpiTab]);
+
+  const fetchReports = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('kpi_reports')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (data) {
+        setReports(data);
+      }
+    } catch(e) {
+      console.log('Error fetching reports', e);
+    }
+  };
+
+  const submitGroupKpi = async () => {
+    const month = prompt("Masukkan bulan laporan (Misal: Juli 2026):");
+    if (!month) return;
+    setIsSaving(true);
+    const data = { reachGrowth, totalViews, engRate, valRatio, ctrRate, leadGenRate, roas, cpr, weeklyInsight, medsosProgress, topKonten, badKonten };
+    
+    try {
+      const { error } = await supabase.from('kpi_reports').insert([{
+        reporter_name: 'Supervisor',
+        type: 'group',
+        month: month,
+        data: data
+      }]);
+      if (error) throw error;
+      alert("Laporan KPI Divisi berhasil disimpan!");
+    } catch(e) {
+      alert("Gagal menyimpan! Pastikan kamu sudah membuat tabel kpi_reports di Supabase SQL Editor.");
+    }
+    setIsSaving(false);
+  };
+
+  const submitIndKpi = async () => {
+    const month = prompt("Masukkan bulan laporan (Misal: Juli 2026):");
+    const name = prompt("Masukkan nama Anda (Misal: Reyhan):");
+    if (!month || !name) return;
+    setIsSaving(true);
+    let data = {};
+    if(indRole === 'scriptwriter') data = { role: indRole, capScore: swCapScore, slaScore: swSlaScore };
+    if(indRole === 'video') data = { role: indRole, capScore: vdCapScore, slaScore: vdSlaScore, revScore: vdRevScore };
+    if(indRole === 'graphic') data = { role: indRole, capScore: gdCapScore, slaScore: gdSlaScore, revScore: gdRevScore };
+
+    try {
+      const { error } = await supabase.from('kpi_reports').insert([{
+        reporter_name: name,
+        type: 'individual',
+        month: month,
+        data: data
+      }]);
+      if (error) throw error;
+      alert("Laporan KPI Individu berhasil disimpan!");
+    } catch(e) {
+      alert("Gagal menyimpan! Pastikan kamu sudah membuat tabel kpi_reports di Supabase SQL Editor.");
+    }
+    setIsSaving(false);
+  };
+
 
   return (
     <div className="space-y-6">
@@ -117,6 +189,12 @@ export default function KpiCalculator() {
             className={`px-4 py-2 text-xs font-bold rounded-md transition ${activeKpiTab === 'individual' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             KPI Perseorangan
+          </button>
+          <button 
+            onClick={() => setActiveKpiTab('dashboard')}
+            className={`px-4 py-2 text-xs font-bold rounded-md transition flex items-center gap-2 ${activeKpiTab === 'dashboard' ? 'bg-zinc-800 text-emerald-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            <LineChartIcon size={14} /> Dashboard Grafik
           </button>
         </div>
       </div>
@@ -329,6 +407,16 @@ export default function KpiCalculator() {
               </div>
 
             </div>
+          </div>
+          
+          <div className="flex justify-end pt-4 border-t border-zinc-800">
+            <button 
+              onClick={submitGroupKpi}
+              disabled={isSaving}
+              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition shadow-lg shadow-indigo-500/20"
+            >
+              <Save size={18} /> {isSaving ? 'Menyimpan...' : 'Simpan Laporan Bulanan'}
+            </button>
           </div>
         </div>
       )}
@@ -548,6 +636,70 @@ export default function KpiCalculator() {
                   <div>
                     <p className="text-xs text-zinc-500">Revision Rate (&le;2.0)</p>
                     <p className={`text-2xl font-black ${gdRevScore <= 2 ? 'text-emerald-400' : 'text-red-400'}`}>{gdRevScore}x</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="p-6 border-t border-zinc-800 flex justify-end bg-zinc-900/50">
+              <button 
+                onClick={submitIndKpi}
+                disabled={isSaving}
+                className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition shadow-lg shadow-amber-500/20"
+              >
+                <Save size={18} /> {isSaving ? 'Menyimpan...' : 'Submit KPI Bulanan'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {activeKpiTab === 'dashboard' && (
+        <div className="space-y-6 animate-slide-in">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <h4 className="text-sm font-bold text-zinc-200 flex items-center gap-2 mb-6"><LineChartIcon size={18} className="text-emerald-400"/> Grafik Tren KPI Divisi (Bulan ke Bulan)</h4>
+            
+            {reports.filter(r => r.type === 'group').length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-12 text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
+                <AlertCircle size={32} className="mb-3 text-zinc-600" />
+                <p className="font-semibold text-zinc-400">Belum Ada Data</p>
+                <p className="text-xs text-center mt-1">Pastikan tabel kpi_reports sudah dibuat di Supabase, <br/> lalu submit laporan dari tab KPI Divisi.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {/* Chart 1: Reach Growth & ER */}
+                <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                  <h5 className="text-xs font-bold text-zinc-400 mb-4 text-center uppercase">Reach Growth & Engagement Rate</h5>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={reports.filter(r => r.type === 'group').map(r => ({ name: r.month, reach: Number(r.data?.reachGrowth || 0), er: Number(r.data?.engRate || 0) }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                        <XAxis dataKey="name" stroke="#71717a" fontSize={10} />
+                        <YAxis stroke="#71717a" fontSize={10} />
+                        <Tooltip contentStyle={{backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff'}} />
+                        <Legend wrapperStyle={{fontSize: '10px'}}/>
+                        <Line type="monotone" name="Reach Growth (%)" dataKey="reach" stroke="#10b981" strokeWidth={3} />
+                        <Line type="monotone" name="ER (%)" dataKey="er" stroke="#f472b6" strokeWidth={3} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Chart 2: ROAS */}
+                <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                  <h5 className="text-xs font-bold text-zinc-400 mb-4 text-center uppercase">Meta Ads ROAS (Return on Ad Spend)</h5>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={reports.filter(r => r.type === 'group').map(r => ({ name: r.month, roas: Number(r.data?.roas || 0) }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                        <XAxis dataKey="name" stroke="#71717a" fontSize={10} />
+                        <YAxis stroke="#71717a" fontSize={10} />
+                        <Tooltip contentStyle={{backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff'}} />
+                        <Legend wrapperStyle={{fontSize: '10px'}}/>
+                        <Line type="monotone" name="ROAS (x)" dataKey="roas" stroke="#3b82f6" strokeWidth={3} />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               </div>
