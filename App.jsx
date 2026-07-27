@@ -63,7 +63,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('beranda');
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [jobdeskUser, setJobdeskUser] = useState('Fathan');
-  const isPublicMode = new URLSearchParams(window.location.search).get('view') === 'request';
+  const isPublicMode = window.location.pathname === '/request' || window.location.hash.includes('request') || new URLSearchParams(window.location.search).get('view') === 'request';
   
   /* State lists */
   const [contentCards, setContentCards] = useState(INITIAL_CONTENT_CARDS);
