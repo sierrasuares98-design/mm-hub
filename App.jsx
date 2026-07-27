@@ -845,19 +845,29 @@ export default function App() {
             </div>
 
             {viewRequestDetail.linkHasilAkhir && (
-              <div className="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-xl flex items-center justify-between">
-                <div>
+              <div className="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-xl flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
                   <span className="text-[10px] text-emerald-400 font-bold uppercase">Serah Terima Selesai</span>
-                  <span className="text-xs text-zinc-400 block mt-0.5 truncate max-w-xs">{viewRequestDetail.linkHasilAkhir}</span>
+                  <span className="text-xs text-zinc-400 block mt-0.5 truncate">{viewRequestDetail.linkHasilAkhir}</span>
                 </div>
-                <a 
-                  href={viewRequestDetail.linkHasilAkhir} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg transition font-bold whitespace-nowrap"
-                >
-                  Buka Link Aset
-                </a>
+                <div className="flex gap-2 shrink-0">
+                  <a 
+                    href={viewRequestDetail.linkHasilAkhir} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] px-3 py-1.5 rounded-lg transition font-bold whitespace-nowrap"
+                  >
+                    Buka Link
+                  </a>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`Halo ${viewRequestDetail.pemohon}, request divisi untuk project "${viewRequestDetail.namaProject}" sudah selesai dikerjakan! 🎉\n\nBerikut link hasilnya:\n${viewRequestDetail.linkHasilAkhir}\n\nTerima kasih!`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-3 py-1.5 rounded-lg transition font-bold whitespace-nowrap flex items-center gap-1.5"
+                  >
+                    Share WA
+                  </a>
+                </div>
               </div>
             )}
 
@@ -1649,7 +1659,19 @@ export default function App() {
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
-                        <a href={req.linkHasilAkhir} target="_blank" rel="noreferrer" className="text-[10px] text-emerald-400 underline mt-2 block">Lihat Hasil Akhir</a>
+                        <div className="flex gap-2 mt-3">
+                          <a href={req.linkHasilAkhir} target="_blank" rel="noreferrer" className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] py-1.5 rounded-md text-center transition font-bold">
+                            Buka GDrive
+                          </a>
+                          <a 
+                            href={`https://wa.me/?text=${encodeURIComponent(`Halo ${req.pemohon}, request divisi untuk project "${req.namaProject}" sudah selesai dikerjakan! 🎉\n\nBerikut link hasilnya:\n${req.linkHasilAkhir}\n\nTerima kasih!`)}`}
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/50 py-1.5 rounded-md text-center transition font-bold"
+                          >
+                            Kirim WA
+                          </a>
+                        </div>
                       </div>
                     ))}
                     {requests.filter(r => r.pic === jobdeskUser && r.status === 'Selesai').length === 0 && (
