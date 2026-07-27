@@ -261,7 +261,6 @@ export default function App() {
     eventDate: '',
     eventLocation: ''
   });
-  const [slaWarning, setSlaWarning] = useState(false);
 
   const [assigningRequestId, setAssigningRequestId] = useState(null);
   const [tempPic, setTempPic] = useState('Fathan');
@@ -354,24 +353,6 @@ export default function App() {
     triggerToast('Konten berhasil diterbitkan secara Live!');
   };
 
-  const handleSlaDateChange = (dateVal) => {
-    setRequestDraft(prev => ({ ...prev, deadlinePemohon: dateVal }));
-    if (!dateVal) {
-      setSlaWarning(false);
-      return;
-    }
-
-    const selectedDate = new Date(dateVal);
-    const diffTime = selectedDate.getTime() - BENCHMARK_DATE.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 3) {
-      setSlaWarning(true);
-    } else {
-      setSlaWarning(false);
-    }
-  };
-
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     
@@ -420,7 +401,6 @@ export default function App() {
       eventLocation: ''
     });
     
-    setSlaWarning(false);
     setActiveRequestSubTab('Review & Antrean');
   };
 
@@ -614,7 +594,7 @@ export default function App() {
                   type="date"
                   required
                   value={requestDraft.deadlinePemohon}
-                  onChange={(e) => handleSlaDateChange(e.target.value)}
+                  onChange={(e) => setRequestDraft(prev => ({ ...prev, deadlinePemohon: e.target.value }))}
                   className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
                 />
               </div>
@@ -643,12 +623,6 @@ export default function App() {
                     className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
                   />
                 </div>
-              </div>
-            )}
-
-            {slaWarning && (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-xs text-amber-300 leading-relaxed animate-pulse">
-                ⚠️ <strong>Tenggat SLA Kurang dari 3 Hari!</strong> Request diprioritaskan tinggi dan membutuhkan approval manual Supervisor.
               </div>
             )}
 
@@ -1733,7 +1707,7 @@ export default function App() {
                             type="date"
                             required
                             value={requestDraft.deadlinePemohon}
-                            onChange={(e) => handleSlaDateChange(e.target.value)}
+                            onChange={(e) => setRequestDraft(prev => ({ ...prev, deadlinePemohon: e.target.value }))}
                             className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
                           />
                         </div>
@@ -1762,13 +1736,6 @@ export default function App() {
                               className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
                             />
                           </div>
-                        </div>
-                      )}
-
-                      {/* Strict SLA Alert */}
-                      {slaWarning && (
-                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-[11px] text-amber-300 leading-relaxed animate-pulse">
-                          ⚠️ <strong>Tenggat SLA Kurang dari 3 Hari!</strong> Request diprioritaskan tinggi dan membutuhkan approval manual Supervisor.
                         </div>
                       )}
 
