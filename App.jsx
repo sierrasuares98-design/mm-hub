@@ -63,6 +63,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('beranda');
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [jobdeskUser, setJobdeskUser] = useState('Fathan');
+  const isPublicMode = new URLSearchParams(window.location.search).get('view') === 'request';
   
   /* State lists */
   const [contentCards, setContentCards] = useState(INITIAL_CONTENT_CARDS);
@@ -87,8 +88,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (session) fetchRequests();
-  }, [session]);
+    if (session || isPublicMode) fetchRequests();
+  }, [session, isPublicMode]);
 
   const fetchRequests = async () => {
     const { data, error } = await supabase
@@ -562,6 +563,134 @@ export default function App() {
 
   if (isInitializingAuth) {
     return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white font-sans"><div className="animate-pulse font-bold tracking-widest text-zinc-500 uppercase">Loading Session...</div></div>;
+  }
+
+  if (isPublicMode) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white font-sans flex flex-col items-center justify-center p-4 selection:bg-violet-600">
+        <div className="max-w-2xl w-full bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl relative">
+          <div className="flex items-center gap-3 mb-6 border-b border-zinc-800 pb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-900/30">
+              <Activity className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight">Form Request Divisi</h2>
+              <p className="text-xs text-zinc-400">Pengajuan aset kreatif MM Hub lintas divisi</p>
+            </div>
+          </div>
+          
+          <form onSubmit={handleRequestSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama & Divisi Pemohon <span className="text-red-400">*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="Contoh: Rudi (Marketing Div)"
+                value={requestDraft.pemohon}
+                onChange={(e) => setRequestDraft(prev => ({ ...prev, pemohon: e.target.value }))}
+                className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase">Jenis Kebutuhan</label>
+                <select
+                  value={requestDraft.jenisKebutuhan}
+                  onChange={(e) => setRequestDraft(prev => ({ ...prev, jenisKebutuhan: e.target.value }))}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                >
+                  <option value="Desain Grafis">Desain Grafis</option>
+                  <option value="Video Pendek">Video Pendek</option>
+                  <option value="Syuting / Liputan Event">Syuting / Liputan Event</option>
+                  <option value="Print Banner">Print Banner</option>
+                  <option value="Materi Sosmed">Materi Sosmed</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline Diminta <span className="text-red-400">*</span></label>
+                <input
+                  type="date"
+                  required
+                  value={requestDraft.deadlinePemohon}
+                  onChange={(e) => handleSlaDateChange(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                />
+              </div>
+            </div>
+
+            {requestDraft.jenisKebutuhan === 'Syuting / Liputan Event' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 animate-slide-in">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Waktu Acara <span className="text-red-400">*</span></label>
+                  <input
+                    type="datetime-local"
+                    required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
+                    value={requestDraft.eventDate}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, eventDate: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Lokasi <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Cth: Gedung A"
+                    required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
+                    value={requestDraft.eventLocation}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, eventLocation: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                  />
+                </div>
+              </div>
+            )}
+
+            {slaWarning && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-xs text-amber-300 leading-relaxed animate-pulse">
+                ⚠️ <strong>Tenggat SLA Kurang dari 3 Hari!</strong> Request diprioritaskan tinggi dan membutuhkan approval manual Supervisor.
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama Project / Judul <span className="text-red-400">*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Desain Baliho Promo Nusafarm"
+                value={requestDraft.namaProject}
+                onChange={(e) => setRequestDraft(prev => ({ ...prev, namaProject: e.target.value }))}
+                className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual</label>
+              <textarea
+                rows="4"
+                placeholder="Tuliskan ukuran, referensi warna, pesan utama, dll..."
+                value={requestDraft.briefVisual}
+                onChange={(e) => setRequestDraft(prev => ({ ...prev, briefVisual: e.target.value }))}
+                className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-violet-900/20 mt-4"
+            >
+              Kirim Request Divisi
+            </button>
+          </form>
+        </div>
+
+        {toast && (
+          <div className={`fixed top-4 right-4 p-4 rounded-xl border z-50 ${toast.type === 'error' ? 'bg-red-500/90 border-red-500 text-white' : 'bg-emerald-500/90 border-emerald-500 text-white'} animate-slide-in text-sm font-bold shadow-2xl backdrop-blur-md`}>
+            {toast.message}
+          </div>
+        )}
+      </div>
+    );
   }
 
   if (!session && !bypassAuth) {
