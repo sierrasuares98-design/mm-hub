@@ -693,6 +693,8 @@ export default function App() {
       </div>
     );
   }
+  const pendingRequestsCount = requests.filter(r => r.status === 'Review & Antrean').length;
+  const myJobdeskCount = requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').length;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex flex-col md:flex-row antialiased overflow-x-hidden selection:bg-violet-600 selection:text-white">
@@ -995,30 +997,44 @@ export default function App() {
 
           <button
             onClick={() => setActiveTab('jobdesk-pribadi')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'jobdesk-pribadi'
                 ? 'bg-gradient-to-r from-pink-950/60 to-zinc-900 text-pink-300 border-l-4 border-pink-500'
                 : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
             }`}
           >
-            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Jobdesk Pribadi
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Jobdesk Pribadi</span>
+            </div>
+            {myJobdeskCount > 0 && (
+              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-pink-900/50">
+                {myJobdeskCount}
+              </span>
+            )}
           </button>
 
           <button
             onClick={() => setActiveTab('request-divisi')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'request-divisi'
                 ? 'bg-gradient-to-r from-amber-950/60 to-zinc-900 text-amber-300 border-l-4 border-amber-500'
                 : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-100'
             }`}
           >
-            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            Request Divisi
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>Request Divisi</span>
+            </div>
+            {pendingRequestsCount > 0 && (
+              <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-amber-900/50 animate-pulse">
+                {pendingRequestsCount}
+              </span>
+            )}
           </button>
 
           <button
