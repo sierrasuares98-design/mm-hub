@@ -1611,19 +1611,35 @@ export default function App() {
                                 onChange={(e) => setTempDeliverableLink(e.target.value)}
                                 className="w-full bg-zinc-950 border border-zinc-800 rounded p-1 text-[11px] text-zinc-100"
                               />
-                              <div className="flex gap-1.5">
+                              <div className="flex flex-col gap-2 mt-2">
                                 <button 
-                                  onClick={() => completeRequestWithLink(req.no)}
-                                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 rounded"
+                                  onClick={async () => {
+                                    if (!tempDeliverableLink || tempDeliverableLink === 'https://drive.google.com/file/d/project-asset-link/view') {
+                                      triggerToast('Mohon lampirkan Link Hasil Akhir yang valid.', 'error');
+                                      return;
+                                    }
+                                    await completeRequestWithLink(req.no);
+                                    const text = encodeURIComponent(`Halo ${req.pemohon}, request divisi untuk project "${req.namaProject}" sudah selesai dikerjakan! 🎉\n\nBerikut link hasilnya:\n${tempDeliverableLink}\n\nTerima kasih!`);
+                                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                                  }}
+                                  className="w-full bg-[#25D366] hover:bg-[#1DA851] text-white text-[10px] font-bold py-2 rounded flex items-center justify-center gap-1.5 transition shadow-lg shadow-[#25D366]/20"
                                 >
-                                  Kirim Aset
+                                  ✅ Kirim Aset & Share WA
                                 </button>
-                                <button 
-                                  onClick={() => setDeliveryRequestId(null)}
-                                  className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] px-2 py-1 rounded"
-                                >
-                                  Batal
-                                </button>
+                                <div className="flex gap-1.5">
+                                  <button 
+                                    onClick={() => completeRequestWithLink(req.no)}
+                                    className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 text-[10px] font-bold py-1.5 rounded transition"
+                                  >
+                                    Kirim Saja
+                                  </button>
+                                  <button 
+                                    onClick={() => setDeliveryRequestId(null)}
+                                    className="bg-red-950/50 hover:bg-red-900 text-red-400 border border-red-900/50 text-[10px] px-3 py-1.5 rounded font-bold transition"
+                                  >
+                                    Batal
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ) : (
@@ -1953,19 +1969,35 @@ export default function App() {
                                             onChange={(e) => setTempDeliverableLink(e.target.value)}
                                             className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
                                           />
-                                          <div className="flex gap-1.5">
+                                          <div className="flex flex-col gap-2 mt-2">
                                             <button 
-                                              onClick={() => completeRequestWithLink(req.no)}
-                                              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 rounded"
+                                              onClick={async () => {
+                                                if (!tempDeliverableLink || tempDeliverableLink === 'https://drive.google.com/file/d/project-asset-link/view') {
+                                                  triggerToast('Mohon lampirkan Link Hasil Akhir yang valid.', 'error');
+                                                  return;
+                                                }
+                                                await completeRequestWithLink(req.no);
+                                                const text = encodeURIComponent(`Halo ${req.pemohon}, request divisi untuk project "${req.namaProject}" sudah selesai dikerjakan! 🎉\n\nBerikut link hasilnya:\n${tempDeliverableLink}\n\nTerima kasih!`);
+                                                window.open(`https://wa.me/?text=${text}`, '_blank');
+                                              }}
+                                              className="w-full bg-[#25D366] hover:bg-[#1DA851] text-white text-[10px] font-bold py-2 rounded flex items-center justify-center gap-1.5 transition shadow-lg shadow-[#25D366]/20"
                                             >
-                                              Serah Terima Aset
+                                              ✅ Kirim Aset & Share WA
                                             </button>
-                                            <button 
-                                              onClick={() => setDeliveryRequestId(null)}
-                                              className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] px-2 py-1 rounded"
-                                            >
-                                              Batal
-                                            </button>
+                                            <div className="flex gap-1.5">
+                                              <button 
+                                                onClick={() => completeRequestWithLink(req.no)}
+                                                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 text-[10px] font-bold py-1.5 rounded transition"
+                                              >
+                                                Kirim Saja
+                                              </button>
+                                              <button 
+                                                onClick={() => setDeliveryRequestId(null)}
+                                                className="bg-red-950/50 hover:bg-red-900 text-red-400 border border-red-900/50 text-[10px] px-3 py-1.5 rounded font-bold transition"
+                                              >
+                                                Batal
+                                              </button>
+                                            </div>
                                           </div>
                                         </div>
                                       ) : (
