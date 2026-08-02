@@ -259,9 +259,19 @@ export default function App() {
     pic: 'Belum Ditunjuk',
     linkHasilAkhir: '',
     eventDate: '',
-    eventLocation: '',
-    saranKritik: ''
+    eventLocation: ''
   });
+
+  const [feedbackText, setFeedbackText] = useState('');
+
+  const handleFeedbackSubmit = (e) => {
+    e.preventDefault();
+    if (!feedbackText.trim()) return;
+    
+    // For now, we simulate a successful submission
+    triggerToast('Terima kasih! Saran & kritik Anda telah kami terima.', 'success');
+    setFeedbackText('');
+  };
 
   const [assigningRequestId, setAssigningRequestId] = useState(null);
   const [tempPic, setTempPic] = useState('Fathan');
@@ -365,10 +375,6 @@ export default function App() {
       finalBrief = `[LIPUTAN EVENT]\n📅 Waktu: ${requestDraft.eventDate ? requestDraft.eventDate.replace('T', ', Jam ') : '-'}\n📍 Lokasi: ${requestDraft.eventLocation || '-'}\n\nDetail Tambahan: ${finalBrief}`;
     }
 
-    if (requestDraft.saranKritik && requestDraft.saranKritik.trim() !== '') {
-      finalBrief += `\n\n[Saran & Kritik dari Pemohon]\n${requestDraft.saranKritik}`;
-    }
-
     const newRequest = {
       no: requestNo,
       tanggalRequest: new Date().toISOString().split('T')[0],
@@ -403,8 +409,7 @@ export default function App() {
       pic: 'Belum Ditunjuk',
       linkHasilAkhir: '',
       eventDate: '',
-      eventLocation: '',
-      saranKritik: ''
+      eventLocation: ''
     });
     
     setActiveRequestSubTab('Review & Antrean');
@@ -556,126 +561,149 @@ export default function App() {
       <div className="min-h-screen bg-zinc-950 text-white font-sans p-4 md:p-8 selection:bg-violet-600 flex items-center justify-center">
         <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* KOLOM KIRI: Form Request */}
-          <div className="lg:col-span-5 bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl relative">
-            <div className="flex items-center gap-3 mb-6 border-b border-zinc-800 pb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-900/30">
-                <Activity className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-extrabold tracking-tight">Form Request Divisi</h2>
-                <p className="text-xs text-zinc-400">Pengajuan aset kreatif MM Hub lintas divisi</p>
-              </div>
-            </div>
+          {/* KOLOM KIRI: Kumpulan Form */}
+          <div className="lg:col-span-5 flex flex-col gap-6">
             
-            <form onSubmit={handleRequestSubmit} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama & Divisi Pemohon <span className="text-red-400">*</span></label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Rudi (Marketing Div)"
-                  value={requestDraft.pemohon}
-                  onChange={(e) => setRequestDraft(prev => ({ ...prev, pemohon: e.target.value }))}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Jenis Kebutuhan</label>
-                  <select
-                    value={requestDraft.jenisKebutuhan}
-                    onChange={(e) => setRequestDraft(prev => ({ ...prev, jenisKebutuhan: e.target.value }))}
-                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                  >
-                    <option value="Desain Grafis">Desain Grafis</option>
-                    <option value="Video Pendek">Video Pendek</option>
-                    <option value="Syuting / Liputan Event">Syuting / Liputan Event</option>
-                    <option value="Print Banner">Print Banner</option>
-                    <option value="Materi Sosmed">Materi Sosmed</option>
-                  </select>
+            {/* 1. Form Request Divisi */}
+            <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl relative">
+              <div className="flex items-center gap-3 mb-6 border-b border-zinc-800 pb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-900/30">
+                  <Activity className="w-6 h-6 text-white" />
                 </div>
-
+                <div>
+                  <h2 className="text-2xl font-extrabold tracking-tight">Form Request Divisi</h2>
+                  <p className="text-xs text-zinc-400">Pengajuan aset kreatif MM Hub lintas divisi</p>
+                </div>
+              </div>
+              
+              <form onSubmit={handleRequestSubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline Diminta <span className="text-red-400">*</span></label>
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama & Divisi Pemohon <span className="text-red-400">*</span></label>
                   <input
-                    type="date"
+                    type="text"
                     required
-                    value={requestDraft.deadlinePemohon}
-                    onChange={(e) => setRequestDraft(prev => ({ ...prev, deadlinePemohon: e.target.value }))}
+                    placeholder="Contoh: Rudi (Marketing Div)"
+                    value={requestDraft.pemohon}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, pemohon: e.target.value }))}
                     className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
                   />
                 </div>
-              </div>
 
-              {requestDraft.jenisKebutuhan === 'Syuting / Liputan Event' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 animate-slide-in">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Waktu Acara <span className="text-red-400">*</span></label>
-                    <input
-                      type="datetime-local"
-                      required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
-                      value={requestDraft.eventDate}
-                      onChange={(e) => setRequestDraft(prev => ({ ...prev, eventDate: e.target.value }))}
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Jenis Kebutuhan</label>
+                    <select
+                      value={requestDraft.jenisKebutuhan}
+                      onChange={(e) => setRequestDraft(prev => ({ ...prev, jenisKebutuhan: e.target.value }))}
                       className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                    />
+                    >
+                      <option value="Desain Grafis">Desain Grafis</option>
+                      <option value="Video Pendek">Video Pendek</option>
+                      <option value="Syuting / Liputan Event">Syuting / Liputan Event</option>
+                      <option value="Print Banner">Print Banner</option>
+                      <option value="Materi Sosmed">Materi Sosmed</option>
+                    </select>
                   </div>
+
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Lokasi <span className="text-red-400">*</span></label>
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline Diminta <span className="text-red-400">*</span></label>
                     <input
-                      type="text"
-                      placeholder="Cth: Gedung A"
-                      required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
-                      value={requestDraft.eventLocation}
-                      onChange={(e) => setRequestDraft(prev => ({ ...prev, eventLocation: e.target.value }))}
+                      type="date"
+                      required
+                      value={requestDraft.deadlinePemohon}
+                      onChange={(e) => setRequestDraft(prev => ({ ...prev, deadlinePemohon: e.target.value }))}
                       className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
                     />
                   </div>
                 </div>
-              )}
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama Project / Judul <span className="text-red-400">*</span></label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Desain Baliho Promo Nusafarm"
-                  value={requestDraft.namaProject}
-                  onChange={(e) => setRequestDraft(prev => ({ ...prev, namaProject: e.target.value }))}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                />
+                {requestDraft.jenisKebutuhan === 'Syuting / Liputan Event' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 animate-slide-in">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase">Waktu Acara <span className="text-red-400">*</span></label>
+                      <input
+                        type="datetime-local"
+                        required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
+                        value={requestDraft.eventDate}
+                        onChange={(e) => setRequestDraft(prev => ({ ...prev, eventDate: e.target.value }))}
+                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase">Lokasi <span className="text-red-400">*</span></label>
+                      <input
+                        type="text"
+                        placeholder="Cth: Gedung A"
+                        required={requestDraft.jenisKebutuhan === 'Syuting / Liputan Event'}
+                        value={requestDraft.eventLocation}
+                        onChange={(e) => setRequestDraft(prev => ({ ...prev, eventLocation: e.target.value }))}
+                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama Project / Judul <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Desain Baliho Promo Nusafarm"
+                    value={requestDraft.namaProject}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, namaProject: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual</label>
+                  <textarea
+                    rows="4"
+                    placeholder="Tuliskan ukuran, referensi warna, pesan utama, dll..."
+                    value={requestDraft.briefVisual}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, briefVisual: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-violet-900/20 mt-4"
+                >
+                  Kirim Request Divisi
+                </button>
+              </form>
+            </div>
+            
+            {/* 2. Kotak Saran & Kritik */}
+            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl relative">
+              <div className="flex items-center gap-3 mb-4 border-b border-zinc-800 pb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-900/30">
+                  <MessageSquare className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold tracking-tight">Kotak Saran & Kritik</h3>
+                  <p className="text-[10px] text-zinc-400">Masukan Anda membantu kami berkembang</p>
+                </div>
               </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual</label>
+              <form onSubmit={handleFeedbackSubmit} className="space-y-3">
                 <textarea
-                  rows="4"
-                  placeholder="Tuliskan ukuran, referensi warna, pesan utama, dll..."
-                  value={requestDraft.briefVisual}
-                  onChange={(e) => setRequestDraft(prev => ({ ...prev, briefVisual: e.target.value }))}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase">Saran & Kritik (Opsional)</label>
-                <textarea
-                  rows="2"
-                  placeholder="Masukan, saran, atau kritik untuk tim MM Hub..."
-                  value={requestDraft.saranKritik}
-                  onChange={(e) => setRequestDraft(prev => ({ ...prev, saranKritik: e.target.value }))}
+                  rows="3"
+                  placeholder="Tuliskan saran, kritik, atau ide untuk tim MM Hub..."
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
                   className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
+                  required
                 />
-              </div>
+                <button
+                  type="submit"
+                  className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-bold py-2.5 rounded-xl text-xs transition border border-zinc-700"
+                >
+                  Kirim Saran Tertutup
+                </button>
+              </form>
+            </div>
 
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-violet-900/20 mt-4"
-              >
-                Kirim Request Divisi
-              </button>
-            </form>
           </div>
 
           {/* KOLOM KANAN: Daftar Antrean */}
@@ -1898,17 +1926,6 @@ export default function App() {
                           value={requestDraft.briefVisual}
                           onChange={(e) => setRequestDraft(prev => ({ ...prev, briefVisual: e.target.value }))}
                           className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Saran & Kritik (Opsional)</label>
-                        <textarea
-                          rows="2"
-                          placeholder="Masukan, saran, atau kritik..."
-                          value={requestDraft.saranKritik}
-                          onChange={(e) => setRequestDraft(prev => ({ ...prev, saranKritik: e.target.value }))}
-                          className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
                         />
                       </div>
 
