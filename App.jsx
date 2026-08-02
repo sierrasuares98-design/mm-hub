@@ -259,7 +259,8 @@ export default function App() {
     pic: 'Belum Ditunjuk',
     linkHasilAkhir: '',
     eventDate: '',
-    eventLocation: ''
+    eventLocation: '',
+    saranKritik: ''
   });
 
   const [assigningRequestId, setAssigningRequestId] = useState(null);
@@ -364,6 +365,10 @@ export default function App() {
       finalBrief = `[LIPUTAN EVENT]\n📅 Waktu: ${requestDraft.eventDate ? requestDraft.eventDate.replace('T', ', Jam ') : '-'}\n📍 Lokasi: ${requestDraft.eventLocation || '-'}\n\nDetail Tambahan: ${finalBrief}`;
     }
 
+    if (requestDraft.saranKritik && requestDraft.saranKritik.trim() !== '') {
+      finalBrief += `\n\n[Saran & Kritik dari Pemohon]\n${requestDraft.saranKritik}`;
+    }
+
     const newRequest = {
       no: requestNo,
       tanggalRequest: new Date().toISOString().split('T')[0],
@@ -398,7 +403,8 @@ export default function App() {
       pic: 'Belum Ditunjuk',
       linkHasilAkhir: '',
       eventDate: '',
-      eventLocation: ''
+      eventLocation: '',
+      saranKritik: ''
     });
     
     setActiveRequestSubTab('Review & Antrean');
@@ -649,6 +655,17 @@ export default function App() {
                   value={requestDraft.briefVisual}
                   onChange={(e) => setRequestDraft(prev => ({ ...prev, briefVisual: e.target.value }))}
                   className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase">Saran & Kritik (Opsional)</label>
+                <textarea
+                  rows="2"
+                  placeholder="Masukan, saran, atau kritik untuk tim MM Hub..."
+                  value={requestDraft.saranKritik}
+                  onChange={(e) => setRequestDraft(prev => ({ ...prev, saranKritik: e.target.value }))}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
                 />
               </div>
 
@@ -1881,6 +1898,17 @@ export default function App() {
                           value={requestDraft.briefVisual}
                           onChange={(e) => setRequestDraft(prev => ({ ...prev, briefVisual: e.target.value }))}
                           className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Saran & Kritik (Opsional)</label>
+                        <textarea
+                          rows="2"
+                          placeholder="Masukan, saran, atau kritik..."
+                          value={requestDraft.saranKritik}
+                          onChange={(e) => setRequestDraft(prev => ({ ...prev, saranKritik: e.target.value }))}
+                          className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
                         />
                       </div>
 
