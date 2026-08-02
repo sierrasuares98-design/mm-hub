@@ -264,13 +264,36 @@ export default function App() {
 
   const [feedbackText, setFeedbackText] = useState('');
 
-  const handleFeedbackSubmit = (e) => {
+  const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     if (!feedbackText.trim()) return;
     
-    // For now, we simulate a successful submission
-    triggerToast('Terima kasih! Saran & kritik Anda telah kami terima.', 'success');
-    setFeedbackText('');
+    const count = requests.length + 1;
+    const requestNo = `FDBK-${String(count).padStart(3, '0')}`;
+    
+    const newFeedback = {
+      no: requestNo,
+      tanggalRequest: new Date().toISOString().split('T')[0],
+      pemohon: 'Anonim',
+      jenisKebutuhan: 'Saran & Kritik',
+      namaProject: 'Masukan Pengguna',
+      briefVisual: feedbackText,
+      deadlinePemohon: new Date().toISOString().split('T')[0],
+      estimasiSelesai: new Date().toISOString().split('T')[0],
+      estimasiMulmed: '',
+      pic: 'Semua Tim',
+      status: 'Feedback',
+      linkHasilAkhir: ''
+    };
+
+    const { error } = await supabase.from('requests').insert([newFeedback]);
+    if (error) {
+      triggerToast('Gagal mengirim saran, coba lagi!', 'error');
+    } else {
+      setRequests([newFeedback, ...requests]);
+      triggerToast('Terima kasih! Saran & kritik Anda telah kami terima.', 'success');
+      setFeedbackText('');
+    }
   };
 
   const [assigningRequestId, setAssigningRequestId] = useState(null);
@@ -719,13 +742,13 @@ export default function App() {
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-              {requests.length === 0 ? (
+              {requests.filter(r => r.status !== 'Feedback').length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-zinc-500">
                   <Activity className="w-8 h-8 mb-2 opacity-50" />
                   <p className="text-sm">Belum ada request saat ini.</p>
                 </div>
               ) : (
-                requests.map(req => (
+                requests.filter(r => r.status !== 'Feedback').map(req => (
                   <div key={req.no} className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-xl flex flex-col sm:flex-row justify-between gap-4 hover:border-zinc-700 transition">
                     <div>
                       <div className="flex items-center gap-2 mb-1.5">
@@ -1212,6 +1235,18 @@ export default function App() {
           >
             <Calculator className="w-5 h-5 shrink-0" />
             Kalkulator KPI
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('saran-kritik')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'saran-kritik'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-zinc-900 text-emerald-300 border-l-4 border-emerald-500'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
+            }`}
+          >
+            <MessageSquare className="w-5 h-5 shrink-0" />
+            Saran & Kritik
           </button>
         </nav>
 
@@ -2837,6 +2872,43 @@ export default function App() {
         {activeTab === 'kpi-kalkulator' && (
           <div className="p-6">
             <KpiCalculator />
+          </div>
+        )}
+
+        {/* TAB: SARAN & KRITIK                                                     */}
+        {/* ======================================================================= */}
+        {activeTab === 'saran-kritik' && (
+          <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-zinc-800 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span className="p-1.5 rounded bg-emerald-600/10 text-emerald-400 text-sm">💡</span>
+                  Kotak Saran & Kritik
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">Daftar masukan dan feedback dari pengguna / tim lintas divisi.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {requests.filter(r => r.status === 'Feedback').length === 0 ? (
+                <div className="col-span-full py-16 text-center text-zinc-500 text-xs">
+                  Belum ada saran & kritik yang masuk.
+                </div>
+              ) : (
+                requests.filter(r => r.status === 'Feedback').map(req => (
+                  <div key={req.no} className="bg-zinc-900/50 p-5 rounded-2xl border border-zinc-800 flex flex-col gap-3">
+                    <div className="flex justify-between items-start border-b border-zinc-800/50 pb-3">
+                      <div>
+                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded uppercase">
+                          {req.tanggalRequest}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed">"{req.briefVisual}"</p>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
 
