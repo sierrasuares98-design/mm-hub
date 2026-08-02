@@ -132,7 +132,8 @@ export default function App() {
     name: 'Fathan',
     time: '08:30',
     plan: '',
-    selectedTasks: []
+    selectedTasks: [],
+    note: ''
   });
 
   const handleCheckinSubmit = (e) => {
@@ -142,7 +143,11 @@ export default function App() {
       return;
     }
     
-    const constructedPlan = checkinForm.selectedTasks.map((t, i) => `${i+1}. ${t}`).join('\n');
+    let constructedPlan = checkinForm.selectedTasks.map((t, i) => `${i+1}. ${t}`).join('\n');
+    if (checkinForm.note && checkinForm.note.trim() !== '') {
+      constructedPlan += `\n\nCatatan Tambahan:\n${checkinForm.note}`;
+    }
+
     const isLate = checkinForm.time > '08:15';
     setCheckins(prev => [
       {
@@ -191,7 +196,7 @@ export default function App() {
       });
     }
 
-    setCheckinForm(prev => ({ ...prev, selectedTasks: [] }));
+    setCheckinForm(prev => ({ ...prev, selectedTasks: [], note: '' }));
   };
 
   const handleAddIdeaSubmit = (e) => {
@@ -2631,7 +2636,7 @@ export default function App() {
                     <select
                       required
                       value={checkinForm.name}
-                      onChange={(e) => setCheckinForm({...checkinForm, name: e.target.value, selectedTasks: []})}
+                      onChange={(e) => setCheckinForm({...checkinForm, name: e.target.value, selectedTasks: [], note: ''})}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name} - {c.role}</option>)}
@@ -2654,12 +2659,11 @@ export default function App() {
                         const myPendingReqs = requests.filter(r => r.pic === checkinForm.name && (r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi' || r.status === 'Review & Antrean'));
                         const myPendingContents = contentCards.filter(c => c.assignee === checkinForm.name && c.status !== 'Published' && c.status !== 'Scheduled');
                         
-                        if (myPendingReqs.length === 0 && myPendingContents.length === 0) {
-                          return <p className="text-xs text-zinc-500 italic p-2">Tidak ada task aktif di Jobdesk Anda.</p>;
-                        }
-
                         return (
                           <>
+                            {myPendingReqs.length === 0 && myPendingContents.length === 0 && (
+                               <p className="text-xs text-zinc-500 italic p-2 pb-0">Tidak ada task aktif di Jobdesk Anda. Silakan pilih "Lain-Lain" atau tambah catatan.</p>
+                            )}
                             {myPendingReqs.map(req => {
                               const taskName = `[Divisi] ${req.namaProject}`;
                               const isChecked = checkinForm.selectedTasks?.includes(taskName);
@@ -2710,10 +2714,42 @@ export default function App() {
                                 </label>
                               );
                             })}
+                            
+                            {/* Fallback Option */}
+                            <label className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition ${checkinForm.selectedTasks?.includes('[Lainnya] Standby / Tugas Tambahan') ? 'bg-emerald-950/20 border-emerald-500/50' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}`}>
+                              <input 
+                                type="checkbox" 
+                                className="mt-0.5 accent-emerald-500 w-4 h-4"
+                                checked={checkinForm.selectedTasks?.includes('[Lainnya] Standby / Tugas Tambahan') || false}
+                                onChange={(e) => {
+                                  const taskName = '[Lainnya] Standby / Tugas Tambahan';
+                                  setCheckinForm(prev => ({
+                                    ...prev,
+                                    selectedTasks: e.target.checked 
+                                      ? [...(prev.selectedTasks || []), taskName]
+                                      : (prev.selectedTasks || []).filter(t => t !== taskName)
+                                  }));
+                                }}
+                              />
+                              <div className="flex flex-col">
+                                <span className="text-[10px] text-zinc-400 font-bold leading-none mb-1 uppercase">Lain-Lain</span>
+                                <span className={`text-xs ${checkinForm.selectedTasks?.includes('[Lainnya] Standby / Tugas Tambahan') ? 'text-emerald-400 font-semibold' : 'text-zinc-300'}`}>Standby / Tugas Tambahan</span>
+                              </div>
+                            </label>
                           </>
                         );
                       })()}
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Catatan Tambahan (Opsional)</label>
+                    <input
+                      type="text"
+                      value={checkinForm.note || ''}
+                      onChange={(e) => setCheckinForm({...checkinForm, note: e.target.value})}
+                      placeholder="Misal: Bantu tim video shoot jam 2"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500"
+                    />
                   </div>
                   <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/30 transition">
                     Submit Check-in
