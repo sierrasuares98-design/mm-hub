@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Activity, CheckCircle, Clock, AlertTriangle, MessageSquare, TrendingUp, Users, Calculator } from 'lucide-react';
+import { ShieldAlert, Activity, CheckCircle, Clock, AlertTriangle, MessageSquare, TrendingUp, Users, Calculator, Trash2, Plus } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import KpiCalculator from './KpiCalculator';
 
@@ -131,22 +131,41 @@ export default function App() {
   const [checkinForm, setCheckinForm] = useState({
     name: 'Fathan',
     time: '08:30',
-    plan: '',
-    selectedTasks: [],
-    note: ''
+    tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }]
   });
 
-  const handleCheckinSubmit = (e) => {
+  const handleAddCheckinTask = () => {
+    setCheckinForm(prev => ({
+      ...prev,
+      tasks: [...prev.tasks, { name: '', deadline: new Date().toISOString().split('T')[0] }]
+    }));
+  };
+
+  const handleUpdateCheckinTask = (index, field, value) => {
+    setCheckinForm(prev => {
+      const newTasks = [...prev.tasks];
+      newTasks[index][field] = value;
+      return { ...prev, tasks: newTasks };
+    });
+  };
+
+  const handleRemoveCheckinTask = (index) => {
+    setCheckinForm(prev => {
+      const newTasks = prev.tasks.filter((_, i) => i !== index);
+      return { ...prev, tasks: newTasks };
+    });
+  };
+
+  const handleCheckinSubmit = async (e) => {
     e.preventDefault();
-    if (!checkinForm.selectedTasks || checkinForm.selectedTasks.length === 0) {
-      triggerToast('Pilih setidaknya 1 task untuk fokus hari ini!', 'error');
+    const validTasks = checkinForm.tasks.filter(t => t.name.trim() !== '');
+    if (validTasks.length === 0) {
+      triggerToast('Wajib mengisi minimal 1 task hari ini!', 'error');
       return;
     }
     
-    let constructedPlan = checkinForm.selectedTasks.map((t, i) => `${i+1}. ${t}`).join('\n');
-    if (checkinForm.note && checkinForm.note.trim() !== '') {
-      constructedPlan += `\n\nCatatan Tambahan:\n${checkinForm.note}`;
-    }
+    // Construct plan string for the check-in log
+    const constructedPlan = validTasks.map((t, i) => `${i+1}. ${t.name} (Target: ${new Date(t.deadline).toLocaleDateString('id-ID', {day:'numeric', month:'short'})})`).join('\n');
 
     const isLate = checkinForm.time > '08:15';
     setCheckins(prev => [
@@ -161,8 +180,42 @@ export default function App() {
       ...prev
     ]);
     
-    triggerToast(`Check-in berhasil untuk ${checkinForm.name}!`);
+    // Insert into Jobdesk Pribadi (requests table)
+    let addedCount = 0;
+    const newReqs = [];
+    for (const task of validTasks) {
+      const count = requests.length + addedCount + 1;
+      const requestNo = `IN-${String(count).padStart(3, '0')}-${Math.floor(Math.random()*1000)}`;
+      
+      const newReq = {
+        no: requestNo,
+        tanggalRequest: new Date().toISOString().split('T')[0],
+        pemohon: checkinForm.name, // The user themselves
+        jenisKebutuhan: 'Inisiatif Harian',
+        namaProject: task.name,
+        briefVisual: 'Task inisiatif ditambahkan otomatis dari Daily Check-in.',
+        deadlinePemohon: task.deadline,
+        estimasiSelesai: task.deadline,
+        estimasiMulmed: '',
+        pic: checkinForm.name,
+        status: 'Proses Desain', 
+        linkHasilAkhir: ''
+      };
+      
+      const { error } = await supabase.from('requests').insert([newReq]);
+      if (!error) {
+        newReqs.push(newReq);
+        addedCount++;
+      }
+    }
     
+    if (newReqs.length > 0) {
+      setRequests([...newReqs, ...requests]);
+      triggerToast(`Check-in sukses! ${newReqs.length} task masuk ke Jobdesk.`);
+    } else {
+      triggerToast(`Check-in berhasil, namun gagal menyimpan task ke database.`, 'error');
+    }
+
     if (isLate) {
       setDisciplinaryRecords(prevRecords => {
         const personRecords = prevRecords.filter(r => r.name === checkinForm.name);
@@ -196,7 +249,7 @@ export default function App() {
       });
     }
 
-    setCheckinForm(prev => ({ ...prev, selectedTasks: [], note: '' }));
+    setCheckinForm(prev => ({ ...prev, tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }] }));
   };
 
   const handleAddIdeaSubmit = (e) => {
@@ -2636,7 +2689,7 @@ export default function App() {
                     <select
                       required
                       value={checkinForm.name}
-                      onChange={(e) => setCheckinForm({...checkinForm, name: e.target.value, selectedTasks: [], note: ''})}
+                      onChange={(e) => setCheckinForm({...checkinForm, name: e.target.value})}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name} - {c.role}</option>)}
@@ -2653,103 +2706,41 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-2">Pilih Task Fokus Hari Ini</label>
-                    <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-2 border border-zinc-800 rounded-lg p-2 bg-zinc-950">
-                      {(() => {
-                        const myPendingReqs = requests.filter(r => r.pic === checkinForm.name && (r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi' || r.status === 'Review & Antrean'));
-                        const myPendingContents = contentCards.filter(c => c.assignee === checkinForm.name && c.status !== 'Published' && c.status !== 'Scheduled');
-                        
-                        return (
-                          <>
-                            {myPendingReqs.length === 0 && myPendingContents.length === 0 && (
-                               <p className="text-xs text-zinc-500 italic p-2 pb-0">Tidak ada task aktif di Jobdesk Anda. Silakan pilih "Lain-Lain" atau tambah catatan.</p>
-                            )}
-                            {myPendingReqs.map(req => {
-                              const taskName = `[Divisi] ${req.namaProject}`;
-                              const isChecked = checkinForm.selectedTasks?.includes(taskName);
-                              return (
-                                <label key={req.no} className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition ${isChecked ? 'bg-emerald-950/20 border-emerald-500/50' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}`}>
-                                  <input 
-                                    type="checkbox" 
-                                    className="mt-0.5 accent-emerald-500 w-4 h-4"
-                                    checked={isChecked || false}
-                                    onChange={(e) => {
-                                      setCheckinForm(prev => ({
-                                        ...prev,
-                                        selectedTasks: e.target.checked 
-                                          ? [...(prev.selectedTasks || []), taskName]
-                                          : (prev.selectedTasks || []).filter(t => t !== taskName)
-                                      }));
-                                    }}
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="text-[10px] text-amber-500 font-bold leading-none mb-1 uppercase">Request Lintas Divisi ({req.status})</span>
-                                    <span className={`text-xs ${isChecked ? 'text-emerald-400 font-semibold' : 'text-zinc-300'}`}>{req.namaProject}</span>
-                                  </div>
-                                </label>
-                              );
-                            })}
-                            {myPendingContents.map(card => {
-                              const taskName = `[Konten] ${card.title}`;
-                              const isChecked = checkinForm.selectedTasks?.includes(taskName);
-                              return (
-                                <label key={card.id} className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition ${isChecked ? 'bg-emerald-950/20 border-emerald-500/50' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}`}>
-                                  <input 
-                                    type="checkbox" 
-                                    className="mt-0.5 accent-emerald-500 w-4 h-4"
-                                    checked={isChecked || false}
-                                    onChange={(e) => {
-                                      setCheckinForm(prev => ({
-                                        ...prev,
-                                        selectedTasks: e.target.checked 
-                                          ? [...(prev.selectedTasks || []), taskName]
-                                          : (prev.selectedTasks || []).filter(t => t !== taskName)
-                                      }));
-                                    }}
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="text-[10px] text-violet-400 font-bold leading-none mb-1 uppercase">Produksi Internal ({card.stage})</span>
-                                    <span className={`text-xs ${isChecked ? 'text-emerald-400 font-semibold' : 'text-zinc-300'}`}>{card.title}</span>
-                                  </div>
-                                </label>
-                              );
-                            })}
-                            
-                            {/* Fallback Option */}
-                            <label className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition ${checkinForm.selectedTasks?.includes('[Lainnya] Standby / Tugas Tambahan') ? 'bg-emerald-950/20 border-emerald-500/50' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}`}>
-                              <input 
-                                type="checkbox" 
-                                className="mt-0.5 accent-emerald-500 w-4 h-4"
-                                checked={checkinForm.selectedTasks?.includes('[Lainnya] Standby / Tugas Tambahan') || false}
-                                onChange={(e) => {
-                                  const taskName = '[Lainnya] Standby / Tugas Tambahan';
-                                  setCheckinForm(prev => ({
-                                    ...prev,
-                                    selectedTasks: e.target.checked 
-                                      ? [...(prev.selectedTasks || []), taskName]
-                                      : (prev.selectedTasks || []).filter(t => t !== taskName)
-                                  }));
-                                }}
+                    <label className="block text-xs font-semibold text-zinc-400 mb-2">Target Pekerjaan Hari Ini</label>
+                    <div className="space-y-3">
+                      {checkinForm.tasks.map((task, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                          <input
+                            type="text"
+                            required
+                            placeholder="Apa yang akan dikerjakan?"
+                            value={task.name}
+                            onChange={(e) => handleUpdateCheckinTask(index, 'name', e.target.value)}
+                            className="flex-1 w-full bg-transparent border-b border-zinc-800 px-2 py-1.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500"
+                          />
+                          <div className="flex gap-2 w-full sm:w-auto items-center mt-2 sm:mt-0">
+                            <div className="flex flex-col w-full sm:w-auto">
+                              <span className="text-[9px] text-zinc-500 font-bold mb-0.5 uppercase">Deadline</span>
+                              <input
+                                type="date"
+                                required
+                                value={task.deadline}
+                                onChange={(e) => handleUpdateCheckinTask(index, 'deadline', e.target.value)}
+                                className="w-full sm:w-auto bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500"
                               />
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-zinc-400 font-bold leading-none mb-1 uppercase">Lain-Lain</span>
-                                <span className={`text-xs ${checkinForm.selectedTasks?.includes('[Lainnya] Standby / Tugas Tambahan') ? 'text-emerald-400 font-semibold' : 'text-zinc-300'}`}>Standby / Tugas Tambahan</span>
-                              </div>
-                            </label>
-                          </>
-                        );
-                      })()}
+                            </div>
+                            {checkinForm.tasks.length > 1 && (
+                              <button type="button" onClick={() => handleRemoveCheckinTask(index)} className="p-2 mt-3 text-red-500 hover:bg-red-500/20 rounded transition">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      <button type="button" onClick={handleAddCheckinTask} className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 hover:text-emerald-300 transition px-2 py-1">
+                        <Plus className="w-4 h-4" /> Tambah Task Lainnya
+                      </button>
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Catatan Tambahan (Opsional)</label>
-                    <input
-                      type="text"
-                      value={checkinForm.note || ''}
-                      onChange={(e) => setCheckinForm({...checkinForm, note: e.target.value})}
-                      placeholder="Misal: Bantu tim video shoot jam 2"
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500"
-                    />
                   </div>
                   <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/30 transition">
                     Submit Check-in
