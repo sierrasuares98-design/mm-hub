@@ -315,6 +315,9 @@ export default function App() {
     pemohon: '',
     jenisKebutuhan: 'Desain Grafis',
     namaProject: '',
+    headline: '',
+    referensiVisual: '',
+    infoWajib: '',
     briefVisual: '',
     deadlinePemohon: '',
     pic: 'Belum Ditunjuk',
@@ -455,6 +458,16 @@ export default function App() {
     const requestNo = `REQ-MM-${String(count).padStart(3, '0')}`;
 
     let finalBrief = requestDraft.briefVisual || 'Tidak ada brief visual khusus.';
+
+    let extraFields = [];
+    if (requestDraft.headline) extraFields.push(`📌 Headline: ${requestDraft.headline}`);
+    if (requestDraft.referensiVisual) extraFields.push(`🎨 Referensi Visual: ${requestDraft.referensiVisual}`);
+    if (requestDraft.infoWajib) extraFields.push(`📝 Info Wajib: ${requestDraft.infoWajib}`);
+    
+    if (extraFields.length > 0) {
+      finalBrief += `\n\n=== DETAIL TAMBAHAN ===\n${extraFields.join('\n')}`;
+    }
+
     if (requestDraft.jenisKebutuhan === 'Syuting / Liputan Event') {
       finalBrief = `[LIPUTAN EVENT]\n📅 Waktu: ${requestDraft.eventDate ? requestDraft.eventDate.replace('T', ', Jam ') : '-'}\n📍 Lokasi: ${requestDraft.eventLocation || '-'}\n\nDetail Tambahan: ${finalBrief}`;
     }
@@ -488,6 +501,9 @@ export default function App() {
       pemohon: '',
       jenisKebutuhan: 'Desain Grafis',
       namaProject: '',
+      headline: '',
+      referensiVisual: '',
+      infoWajib: '',
       briefVisual: '',
       deadlinePemohon: '',
       pic: 'Belum Ditunjuk',
@@ -740,7 +756,40 @@ export default function App() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual</label>
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Headline <span className="text-zinc-600">(Opsional)</span></label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: Promo Spesial Akhir Tahun!"
+                    value={requestDraft.headline}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, headline: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Referensi Visual <span className="text-zinc-600">(Opsional)</span></label>
+                  <input
+                    type="text"
+                    placeholder="Link Drive / Referensi Desain"
+                    value={requestDraft.referensiVisual}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, referensiVisual: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Informasi Wajib di Desain <span className="text-zinc-600">(Opsional)</span></label>
+                  <textarea
+                    rows="2"
+                    placeholder="Contoh: Logo harus ada, warna dominan merah"
+                    value={requestDraft.infoWajib}
+                    onChange={(e) => setRequestDraft(prev => ({ ...prev, infoWajib: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition resize-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual Tambahan</label>
                   <textarea
                     rows="4"
                     placeholder="Tuliskan ukuran, referensi warna, pesan utama, dll..."
@@ -2015,7 +2064,40 @@ export default function App() {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual</label>
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Headline <span className="text-zinc-600">(Opsional)</span></label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: Promo Spesial Akhir Tahun!"
+                          value={requestDraft.headline}
+                          onChange={(e) => setRequestDraft(prev => ({ ...prev, headline: e.target.value }))}
+                          className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Referensi Visual <span className="text-zinc-600">(Opsional)</span></label>
+                        <input
+                          type="text"
+                          placeholder="Link Drive / Referensi Desain"
+                          value={requestDraft.referensiVisual}
+                          onChange={(e) => setRequestDraft(prev => ({ ...prev, referensiVisual: e.target.value }))}
+                          className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Informasi Wajib di Desain <span className="text-zinc-600">(Opsional)</span></label>
+                        <textarea
+                          rows="2"
+                          placeholder="Contoh: Logo harus ada, warna dominan merah"
+                          value={requestDraft.infoWajib}
+                          onChange={(e) => setRequestDraft(prev => ({ ...prev, infoWajib: e.target.value }))}
+                          className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition resize-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief Visual Tambahan</label>
                         <textarea
                           rows="3"
                           placeholder="Tuliskan ukuran, referensi warna, pesan utama, dll..."
