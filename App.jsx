@@ -916,54 +916,92 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-              {requests.filter(r => r.status !== 'Feedback').length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-zinc-500">
-                  <Activity className="w-8 h-8 mb-2 opacity-50" />
-                  <p className="text-sm">Belum ada request saat ini.</p>
-                </div>
-              ) : (
-                requests.filter(r => r.status !== 'Feedback').map(req => (
-                  <div key={req.no} className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-xl flex flex-col sm:flex-row justify-between gap-4 hover:border-zinc-700 transition">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-[10px] font-bold text-zinc-500 px-2 py-0.5 rounded bg-zinc-900">REQ-{req.no}</span>
-                        <span className="font-bold text-sm text-zinc-200">{req.namaProject}</span>
-                      </div>
-                      <p className="text-xs text-zinc-400 mb-2">
-                        <span className="text-zinc-500">Pemohon:</span> {req.pemohon} <span className="mx-1 text-zinc-700">|</span> <span className="text-zinc-500">Tipe:</span> {req.jenisKebutuhan}
-                      </p>
-                      <div className="text-[10px] text-zinc-500 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        Target: {new Date(req.deadlinePemohon).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col items-start sm:items-end justify-between">
-                      <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full border ${
-                        req.status === 'Review & Antrean' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                        req.status === 'Proses Desain' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                        req.status === 'QC & Revisi Divisi' ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' :
-                        req.status === 'Selesai' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                      }`}>
-                        {req.status}
-                      </span>
-                      
-                      {req.pic && req.status !== 'Review & Antrean' && (
-                        <div className="text-[10px] text-zinc-400 mt-3 flex items-center gap-1.5 bg-zinc-900 px-2.5 py-1 rounded-md">
-                          PIC: <span className="font-bold text-zinc-300">{req.pic}</span>
+            <div className="flex-1 overflow-hidden flex flex-col xl:flex-row gap-6 pr-2">
+              
+              {/* KOLOM KIRI: Antrean */}
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-sm font-bold text-amber-400 mb-3 flex items-center justify-between border-b border-zinc-800 pb-2">
+                  <span>Antrean Request</span>
+                  <span className="text-[10px] bg-amber-500/10 px-2 py-0.5 rounded-full">{requests.filter(r => r.status === 'Review & Antrean').length}</span>
+                </h3>
+                <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-1">
+                  {requests.filter(r => r.status === 'Review & Antrean').length === 0 ? (
+                    <div className="text-center text-zinc-500 text-xs py-10">Antrean kosong.</div>
+                  ) : (
+                    requests.filter(r => r.status === 'Review & Antrean').map(req => (
+                      <div key={req.no} className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-xl flex flex-col justify-between gap-4 hover:border-zinc-700 transition">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[10px] font-bold text-zinc-500 px-2 py-0.5 rounded bg-zinc-900">REQ-{req.no}</span>
+                            <span className="font-bold text-sm text-zinc-200">{req.namaProject}</span>
+                          </div>
+                          <p className="text-xs text-zinc-400 mb-2">
+                            <span className="text-zinc-500">Pemohon:</span> {req.pemohon} <span className="mx-1 text-zinc-700">|</span> <span className="text-zinc-500">Tipe:</span> {req.jenisKebutuhan}
+                          </p>
+                          <div className="text-[10px] text-zinc-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> Target: {new Date(req.deadlinePemohon).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}
+                          </div>
                         </div>
-                      )}
-                      
-                      {req.linkHasilAkhir && req.status === 'Selesai' && (
-                        <a href={req.linkHasilAkhir} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 hover:underline mt-2 flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3" /> Lihat Hasil
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
+                        <div className="flex justify-start">
+                          <span className="text-[10px] font-bold px-3 py-1.5 rounded-full border bg-amber-500/10 text-amber-400 border-amber-500/20">{req.status}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* KOLOM KANAN: Proses & Selesai */}
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-sm font-bold text-blue-400 mb-3 flex items-center justify-between border-b border-zinc-800 pb-2">
+                  <span>Sedang Dikerjakan</span>
+                  <span className="text-[10px] bg-blue-500/10 px-2 py-0.5 rounded-full">{requests.filter(r => r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi' || r.status === 'Selesai').length}</span>
+                </h3>
+                <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-1">
+                  {requests.filter(r => r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi' || r.status === 'Selesai').length === 0 ? (
+                    <div className="text-center text-zinc-500 text-xs py-10">Belum ada request yang sedang dikerjakan.</div>
+                  ) : (
+                    requests.filter(r => r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi' || r.status === 'Selesai').map(req => (
+                      <div key={req.no} className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-xl flex flex-col justify-between gap-4 hover:border-zinc-700 transition">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[10px] font-bold text-zinc-500 px-2 py-0.5 rounded bg-zinc-900">REQ-{req.no}</span>
+                            <span className="font-bold text-sm text-zinc-200">{req.namaProject}</span>
+                          </div>
+                          <p className="text-xs text-zinc-400 mb-2">
+                            <span className="text-zinc-500">Pemohon:</span> {req.pemohon} <span className="mx-1 text-zinc-700">|</span> <span className="text-zinc-500">Tipe:</span> {req.jenisKebutuhan}
+                          </p>
+                          <div className="text-[10px] text-zinc-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> Target: {new Date(req.deadlinePemohon).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-start justify-between mt-3 xl:mt-0">
+                          <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full border ${
+                            req.status === 'Proses Desain' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                            req.status === 'QC & Revisi Divisi' ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' :
+                            'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          }`}>
+                            {req.status}
+                          </span>
+                          
+                          {req.pic && (
+                            <div className="text-[10px] text-zinc-400 mt-3 flex items-center gap-1.5 bg-zinc-900 px-2.5 py-1 rounded-md">
+                              PIC: <span className="font-bold text-zinc-300">{req.pic}</span>
+                            </div>
+                          )}
+                          
+                          {req.linkHasilAkhir && req.status === 'Selesai' && (
+                            <a href={req.linkHasilAkhir} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 hover:underline mt-2 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" /> Lihat Hasil
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
 
