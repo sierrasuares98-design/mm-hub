@@ -1005,6 +1005,185 @@ export default function App() {
       </div>
     );
   }
+  
+  const renderRequestCard = (req) => {
+    const estDateObj = new Date(req.estimasiSelesai);
+                            const diffDays = Math.ceil((estDateObj.getTime() - BENCHMARK_DATE.getTime()) / (1000 * 60 * 60 * 24));
+                            const isUrgent = diffDays < 3 && req.status === 'Review & Antrean';
+
+                            return (
+                              <div
+                                key={req.no}
+                                onClick={() => setViewRequestDetail(req)}
+                                className={`bg-zinc-900 hover:bg-zinc-800/80 border p-4 rounded-xl transition cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden ${
+                                  isUrgent ? 'border-amber-500/40 shadow-lg shadow-amber-950/10' : 'border-zinc-800'
+                                }`}
+                              >
+                                {isUrgent && (
+                                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-amber-500" />
+                                )}
+
+                                <div>
+                                  <div className="flex justify-between items-center text-[9px] mb-2">
+                                    <span className="font-mono bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-400">
+                                      {req.no}
+                                    </span>
+                                    <span className={`px-2 py-0.5 rounded font-bold ${isUrgent ? 'bg-amber-500/10 text-amber-400' : 'bg-zinc-800 text-zinc-400'}`}>
+                                      {diffDays < 0 ? 'TERLAMBAT' : `Sisa ${diffDays} Hari`}
+                                    </span>
+                                  </div>
+
+                                  <h4 className="text-sm font-bold text-zinc-200 leading-snug">{req.namaProject}</h4>
+                                  
+                                  <div className="mt-2 text-[11px] text-zinc-400 space-y-1">
+                                    <p><strong className="text-zinc-500">Kebutuhan:</strong> {req.jenisKebutuhan}</p>
+                                    <div className="flex items-center flex-wrap gap-2">
+                                      <p><strong className="text-zinc-500">Pemohon:</strong> <span className="text-zinc-300 font-semibold">{req.pemohon}</span></p>
+                                      {req.pemohon === 'Supervisor' ? (
+                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30">TUGAS SPV</span>
+                                      ) : (
+                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
+                                      )}
+                                    </div>
+                                    <p><strong className="text-zinc-500">PIC Desainer:</strong> {req.pic}</p>
+                                  </div>
+                                </div>
+
+                                {/* Detailed sequential pipeline actions for requests */}
+                                <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
+                                  
+                                  {req.status === 'Review & Antrean' && (
+                                    <>
+                                      {assigningRequestId === req.no ? (
+                                        <div className="space-y-2 bg-zinc-950 p-2 rounded border border-zinc-800">
+                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase">Pilih PIC Kreator:</label>
+                                          <select 
+                                            value={tempPic} 
+                                            onChange={(e) => setTempPic(e.target.value)}
+                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100 mb-1"
+                                          >
+                                            {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                                          </select>
+                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase mt-1">Estimasi Selesai (Tim Mulmed):</label>
+                                          <input 
+                                            type="date"
+                                            value={tempEstimasiMulmed}
+                                            onChange={(e) => setTempEstimasiMulmed(e.target.value)}
+                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
+                                          />
+                                          <div className="flex gap-1.5 mt-2">
+                                            <button 
+                                              onClick={() => assignRequestPic(req.no)}
+                                              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 rounded"
+                                            >
+                                              Simpan
+                                            </button>
+                                            <button 
+                                              onClick={() => setAssigningRequestId(null)}
+                                              className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] px-2 py-1 rounded"
+                                            >
+                                              Batal
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <button
+                                          onClick={() => {
+                                            setAssigningRequestId(req.no);
+                                            setTempPic(CREATORS[0].name);
+                                          }}
+                                          className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[11px] py-1.5 rounded-lg transition"
+                                        >
+                                          ✓ Setujui & Tunjuk PIC ➔
+                                        </button>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {req.status === 'Proses Desain' && (
+                                    <button
+                                      onClick={() => advanceRequestToQc(req.no)}
+                                      className="w-full bg-zinc-950 hover:bg-blue-950/40 hover:text-blue-400 text-zinc-300 border border-zinc-800 rounded-lg py-1.5 text-xs font-bold transition"
+                                    >
+                                      Selesai Edit & Ajukan QC Divisi ➔
+                                    </button>
+                                  )}
+
+                                  {req.status === 'QC & Revisi Divisi' && (
+                                    <>
+                                      {deliveryRequestId === req.no ? (
+                                        <div className="space-y-2 bg-zinc-950 p-2 rounded border border-zinc-800">
+                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase">Link Hasil Akhir (G-Drive/Figma):</label>
+                                          <input 
+                                            type="url"
+                                            required
+                                            placeholder="https://drive.google.com/..."
+                                            value={tempDeliverableLink}
+                                            onChange={(e) => setTempDeliverableLink(e.target.value)}
+                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
+                                          />
+                                          <div className="flex flex-col gap-2 mt-2">
+                                            <button 
+                                              onClick={async () => {
+                                                if (!tempDeliverableLink || tempDeliverableLink === 'https://drive.google.com/file/d/project-asset-link/view') {
+                                                  triggerToast('Mohon lampirkan Link Hasil Akhir yang valid.', 'error');
+                                                  return;
+                                                }
+                                                await completeRequestWithLink(req.no);
+                                                const text = encodeURIComponent(`Halo ${req.pemohon}, request divisi untuk project "${req.namaProject}" sudah selesai dikerjakan! 🎉\n\nBerikut link hasilnya:\n${tempDeliverableLink}\n\nTerima kasih!`);
+                                                window.open(`https://wa.me/?text=${text}`, '_blank');
+                                              }}
+                                              className="w-full bg-[#25D366] hover:bg-[#1DA851] text-white text-[10px] font-bold py-2 rounded flex items-center justify-center gap-1.5 transition shadow-lg shadow-[#25D366]/20"
+                                            >
+                                              ✅ Kirim Aset & Share WA
+                                            </button>
+                                            <div className="flex gap-1.5">
+                                              <button 
+                                                onClick={() => completeRequestWithLink(req.no)}
+                                                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 text-[10px] font-bold py-1.5 rounded transition"
+                                              >
+                                                Kirim Saja
+                                              </button>
+                                              <button 
+                                                onClick={() => setDeliveryRequestId(null)}
+                                                className="bg-red-950/50 hover:bg-red-900 text-red-400 border border-red-900/50 text-[10px] px-3 py-1.5 rounded font-bold transition"
+                                              >
+                                                Batal
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <button
+                                          onClick={() => {
+                                            setDeliveryRequestId(req.no);
+                                            setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
+                                          }}
+                                          className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs py-1.5 rounded-lg transition"
+                                        >
+                                          ✓ Selesaikan & Kirim Aset ➔
+                                        </button>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {req.status === 'Selesai' && (
+                                    <div className="flex justify-between items-center text-[10px]">
+                                      <span className="text-emerald-400 font-bold">✓ Selesai & Terkirim</span>
+                                      <button 
+                                        onClick={() => deleteRequest(req.no)}
+                                        className="text-zinc-500 hover:text-red-400 transition"
+                                      >
+                                        Hapus
+                                      </button>
+                                    </div>
+                                  )}
+
+                                </div>
+
+                              </div>
+                            );
+  };
   const pendingRequestsCount = requests.filter(r => r.status === 'Review & Antrean').length;
   const myJobdeskCount = requests.filter(r => r.status === 'Proses Desain').length;
 
@@ -2264,227 +2443,52 @@ export default function App() {
                   </div>
 
                   {/* Right Column: Multi-stage pipeline of divisional requests */}
-                  <div className="lg:col-span-8 space-y-4">
+                  <div className="lg:col-span-8 grid grid-cols-1 xl:grid-cols-2 gap-6">
                     
-                    {/* Horizontal sub-tabs for Requests */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 bg-zinc-900/40 p-1 rounded-xl border border-zinc-900">
-                      {REQUEST_STAGES.map(stage => {
-                        const count = requests.filter(r => r.status === stage.key).length;
-                        const isSelected = activeRequestSubTab === stage.key;
-                        return (
-                          <button
-                            key={stage.key}
-                            onClick={() => setActiveRequestSubTab(stage.key)}
-                            className={`p-2.5 rounded-lg text-left transition-all ${
-                              isSelected ? 'bg-zinc-800 border border-zinc-700 shadow-md' : 'hover:bg-zinc-900/60'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm">{stage.icon}</span>
-                              <span className="text-[9px] bg-zinc-950 px-1.5 py-0.5 rounded font-bold text-zinc-400">{count} Aset</span>
-                            </div>
-                            <h5 className="text-[11px] font-bold text-zinc-200 mt-1.5 truncate">{stage.key}</h5>
-                          </button>
-                        );
-                      })}
+                    {/* KOLOM KIRI: ANTREAN */}
+                    <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-5 flex flex-col min-h-[500px]">
+                      <h4 className="text-sm font-bold text-amber-400 mb-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                          Antrean Request Divisi
+                        </div>
+                        <span className="text-[10px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">
+                          {requests.filter(r => r.status === 'Review & Antrean').length}
+                        </span>
+                      </h4>
+                      
+                      <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+                        {requests.filter(r => r.status === 'Review & Antrean').length === 0 ? (
+                          <div className="py-16 text-center text-zinc-500 text-xs">Belum ada request di antrean.</div>
+                        ) : (
+                          requests.filter(r => r.status === 'Review & Antrean').map(req => renderRequestCard(req))
+                        )}
+                      </div>
                     </div>
 
-                    {/* Active Request Grid List */}
-                    <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-5 min-h-[300px]">
+                    {/* KOLOM KANAN: DIKERJAKAN TIM */}
+                    <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-5 flex flex-col min-h-[500px]">
+                      <h4 className="text-sm font-bold text-blue-400 mb-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                          Daftar Kerjaan Tim (Proses)
+                        </div>
+                        <span className="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">
+                          {requests.filter(r => r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi').length}
+                        </span>
+                      </h4>
                       
-                      {requests.filter(r => r.status === activeRequestSubTab).length === 0 ? (
-                        <div className="py-16 text-center text-zinc-500 text-xs">
-                          Belum ada request dari divisi lain di tahap {activeRequestSubTab}.
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {requests.filter(r => r.status === activeRequestSubTab).map(req => {
-                            const estDateObj = new Date(req.estimasiSelesai);
-                            const diffDays = Math.ceil((estDateObj.getTime() - BENCHMARK_DATE.getTime()) / (1000 * 60 * 60 * 24));
-                            const isUrgent = diffDays < 3 && req.status === 'Review & Antrean';
-
-                            return (
-                              <div
-                                key={req.no}
-                                onClick={() => setViewRequestDetail(req)}
-                                className={`bg-zinc-900 hover:bg-zinc-800/80 border p-4 rounded-xl transition cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden ${
-                                  isUrgent ? 'border-amber-500/40 shadow-lg shadow-amber-950/10' : 'border-zinc-800'
-                                }`}
-                              >
-                                {isUrgent && (
-                                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-amber-500" />
-                                )}
-
-                                <div>
-                                  <div className="flex justify-between items-center text-[9px] mb-2">
-                                    <span className="font-mono bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-400">
-                                      {req.no}
-                                    </span>
-                                    <span className={`px-2 py-0.5 rounded font-bold ${isUrgent ? 'bg-amber-500/10 text-amber-400' : 'bg-zinc-800 text-zinc-400'}`}>
-                                      {diffDays < 0 ? 'TERLAMBAT' : `Sisa ${diffDays} Hari`}
-                                    </span>
-                                  </div>
-
-                                  <h4 className="text-sm font-bold text-zinc-200 leading-snug">{req.namaProject}</h4>
-                                  
-                                  <div className="mt-2 text-[11px] text-zinc-400 space-y-1">
-                                    <p><strong className="text-zinc-500">Kebutuhan:</strong> {req.jenisKebutuhan}</p>
-                                    <div className="flex items-center flex-wrap gap-2">
-                                      <p><strong className="text-zinc-500">Pemohon:</strong> <span className="text-zinc-300 font-semibold">{req.pemohon}</span></p>
-                                      {req.pemohon === 'Supervisor' ? (
-                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30">TUGAS SPV</span>
-                                      ) : (
-                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
-                                      )}
-                                    </div>
-                                    <p><strong className="text-zinc-500">PIC Desainer:</strong> {req.pic}</p>
-                                  </div>
-                                </div>
-
-                                {/* Detailed sequential pipeline actions for requests */}
-                                <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
-                                  
-                                  {req.status === 'Review & Antrean' && (
-                                    <>
-                                      {assigningRequestId === req.no ? (
-                                        <div className="space-y-2 bg-zinc-950 p-2 rounded border border-zinc-800">
-                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase">Pilih PIC Kreator:</label>
-                                          <select 
-                                            value={tempPic} 
-                                            onChange={(e) => setTempPic(e.target.value)}
-                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100 mb-1"
-                                          >
-                                            {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                                          </select>
-                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase mt-1">Estimasi Selesai (Tim Mulmed):</label>
-                                          <input 
-                                            type="date"
-                                            value={tempEstimasiMulmed}
-                                            onChange={(e) => setTempEstimasiMulmed(e.target.value)}
-                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
-                                          />
-                                          <div className="flex gap-1.5 mt-2">
-                                            <button 
-                                              onClick={() => assignRequestPic(req.no)}
-                                              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 rounded"
-                                            >
-                                              Simpan
-                                            </button>
-                                            <button 
-                                              onClick={() => setAssigningRequestId(null)}
-                                              className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] px-2 py-1 rounded"
-                                            >
-                                              Batal
-                                            </button>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <button
-                                          onClick={() => {
-                                            setAssigningRequestId(req.no);
-                                            setTempPic(CREATORS[0].name);
-                                          }}
-                                          className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[11px] py-1.5 rounded-lg transition"
-                                        >
-                                          ✓ Setujui & Tunjuk PIC ➔
-                                        </button>
-                                      )}
-                                    </>
-                                  )}
-
-                                  {req.status === 'Proses Desain' && (
-                                    <button
-                                      onClick={() => advanceRequestToQc(req.no)}
-                                      className="w-full bg-zinc-950 hover:bg-blue-950/40 hover:text-blue-400 text-zinc-300 border border-zinc-800 rounded-lg py-1.5 text-xs font-bold transition"
-                                    >
-                                      Selesai Edit & Ajukan QC Divisi ➔
-                                    </button>
-                                  )}
-
-                                  {req.status === 'QC & Revisi Divisi' && (
-                                    <>
-                                      {deliveryRequestId === req.no ? (
-                                        <div className="space-y-2 bg-zinc-950 p-2 rounded border border-zinc-800">
-                                          <label className="text-[9px] font-bold text-zinc-400 block uppercase">Link Hasil Akhir (G-Drive/Figma):</label>
-                                          <input 
-                                            type="url"
-                                            required
-                                            placeholder="https://drive.google.com/..."
-                                            value={tempDeliverableLink}
-                                            onChange={(e) => setTempDeliverableLink(e.target.value)}
-                                            className="w-full bg-zinc-900 border border-zinc-700 rounded p-1 text-[11px] text-zinc-100"
-                                          />
-                                          <div className="flex flex-col gap-2 mt-2">
-                                            <button 
-                                              onClick={async () => {
-                                                if (!tempDeliverableLink || tempDeliverableLink === 'https://drive.google.com/file/d/project-asset-link/view') {
-                                                  triggerToast('Mohon lampirkan Link Hasil Akhir yang valid.', 'error');
-                                                  return;
-                                                }
-                                                await completeRequestWithLink(req.no);
-                                                const text = encodeURIComponent(`Halo ${req.pemohon}, request divisi untuk project "${req.namaProject}" sudah selesai dikerjakan! 🎉\n\nBerikut link hasilnya:\n${tempDeliverableLink}\n\nTerima kasih!`);
-                                                window.open(`https://wa.me/?text=${text}`, '_blank');
-                                              }}
-                                              className="w-full bg-[#25D366] hover:bg-[#1DA851] text-white text-[10px] font-bold py-2 rounded flex items-center justify-center gap-1.5 transition shadow-lg shadow-[#25D366]/20"
-                                            >
-                                              ✅ Kirim Aset & Share WA
-                                            </button>
-                                            <div className="flex gap-1.5">
-                                              <button 
-                                                onClick={() => completeRequestWithLink(req.no)}
-                                                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 text-[10px] font-bold py-1.5 rounded transition"
-                                              >
-                                                Kirim Saja
-                                              </button>
-                                              <button 
-                                                onClick={() => setDeliveryRequestId(null)}
-                                                className="bg-red-950/50 hover:bg-red-900 text-red-400 border border-red-900/50 text-[10px] px-3 py-1.5 rounded font-bold transition"
-                                              >
-                                                Batal
-                                              </button>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <button
-                                          onClick={() => {
-                                            setDeliveryRequestId(req.no);
-                                            setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
-                                          }}
-                                          className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs py-1.5 rounded-lg transition"
-                                        >
-                                          ✓ Selesaikan & Kirim Aset ➔
-                                        </button>
-                                      )}
-                                    </>
-                                  )}
-
-                                  {req.status === 'Selesai' && (
-                                    <div className="flex justify-between items-center text-[10px]">
-                                      <span className="text-emerald-400 font-bold">✓ Selesai & Terkirim</span>
-                                      <button 
-                                        onClick={() => deleteRequest(req.no)}
-                                        className="text-zinc-500 hover:text-red-400 transition"
-                                      >
-                                        Hapus
-                                      </button>
-                                    </div>
-                                  )}
-
-                                </div>
-
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-
+                      <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+                        {requests.filter(r => r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi').length === 0 ? (
+                          <div className="py-16 text-center text-zinc-500 text-xs">Belum ada request yang sedang dikerjakan.</div>
+                        ) : (
+                          requests.filter(r => r.status === 'Proses Desain' || r.status === 'QC & Revisi Divisi').map(req => renderRequestCard(req))
+                        )}
+                      </div>
                     </div>
 
                   </div>
-
                 </div>
-
               </div>
             </>
           )}
