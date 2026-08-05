@@ -1915,6 +1915,20 @@ export default function App() {
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
                           )}
                         </div>
+
+                        {req.briefVisual && (
+                          <div className="mt-2 bg-zinc-900/50 rounded-lg p-2 border border-zinc-800/80">
+                            <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
+                              <strong className="text-zinc-500">Brief:</strong> {req.briefVisual}
+                            </p>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setViewRequestDetail(req); }}
+                              className="text-[9px] text-blue-400 font-bold hover:text-blue-300 mt-1.5 flex items-center gap-1"
+                            >
+                              Baca Selengkapnya <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                            </button>
+                          </div>
+                        )}
                         
                         <div className="mt-3 space-y-1">
                           <div className="flex justify-between text-[10px]">
@@ -1972,6 +1986,20 @@ export default function App() {
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
                           )}
                         </div>
+
+                        {req.briefVisual && (
+                          <div className="mt-2 bg-zinc-900/50 rounded-lg p-2 border border-zinc-800/80">
+                            <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
+                              <strong className="text-zinc-500">Brief:</strong> {req.briefVisual}
+                            </p>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setViewRequestDetail(req); }}
+                              className="text-[9px] text-violet-400 font-bold hover:text-violet-300 mt-1.5 flex items-center gap-1"
+                            >
+                              Baca Selengkapnya <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                            </button>
+                          </div>
+                        )}
 
                         <div className="mt-4 pt-3 border-t border-zinc-800">
                           {deliveryRequestId === req.no ? (
