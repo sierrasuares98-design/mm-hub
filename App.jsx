@@ -134,6 +134,12 @@ export default function App() {
     tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }]
   });
 
+  const [spvJobDraft, setSpvJobDraft] = useState({
+    name: '',
+    assignee: CREATORS[0].name,
+    deadline: new Date().toISOString().split('T')[0]
+  });
+
   const handleAddCheckinTask = () => {
     setCheckinForm(prev => ({
       ...prev,
@@ -250,6 +256,42 @@ export default function App() {
     }
 
     setCheckinForm(prev => ({ ...prev, tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }] }));
+  };
+
+  const handleSpvAddJob = async (e) => {
+    e.preventDefault();
+    if (!spvJobDraft.name.trim()) {
+      triggerToast('Nama tugas tidak boleh kosong!', 'error');
+      return;
+    }
+
+    const count = requests.length + 1;
+    const requestNo = `SPV-${String(count).padStart(3, '0')}-${Math.floor(Math.random()*1000)}`;
+
+    const newReq = {
+      no: requestNo,
+      tanggalRequest: new Date().toISOString().split('T')[0],
+      pemohon: 'Supervisor',
+      jenisKebutuhan: 'Tugas SPV',
+      namaProject: spvJobDraft.name,
+      briefVisual: 'Tugas ditambahkan langsung oleh Supervisor ke agenda harian.',
+      deadlinePemohon: spvJobDraft.deadline,
+      estimasiSelesai: spvJobDraft.deadline,
+      estimasiMulmed: '',
+      pic: spvJobDraft.assignee,
+      status: 'Proses Desain', 
+      linkHasilAkhir: ''
+    };
+
+    const { error } = await supabase.from('requests').insert([newReq]);
+    
+    if (error) {
+      triggerToast('Gagal menambahkan tugas SPV ke database.', 'error');
+    } else {
+      setRequests([newReq, ...requests]);
+      triggerToast(`Tugas berhasil ditambahkan untuk ${spvJobDraft.assignee}!`);
+      setSpvJobDraft({ name: '', assignee: spvJobDraft.assignee, deadline: new Date().toISOString().split('T')[0] });
+    }
   };
 
   const handleAddIdeaSubmit = (e) => {
@@ -1782,27 +1824,80 @@ export default function App() {
                   </h3>
                   <p className="text-xs text-zinc-500 mt-0.5">Daftar tugas harian khusus untuk masing-masing PIC.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-zinc-400 font-semibold">Pilih Eksekutor:</span>
-                  <select 
-                    value={jobdeskUser}
-                    onChange={(e) => setJobdeskUser(e.target.value)}
-                    className="bg-zinc-900 border border-zinc-700 text-zinc-100 font-bold rounded-lg py-2 px-4 focus:outline-none focus:border-pink-500"
-                  >
-                    {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                  </select>
-                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Kolom Pending / Proses */}
+              {/* Form Tambah Tugas oleh SPV */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-600 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-900/30">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-md font-bold text-white">Buat Agenda / Tugas Baru</h4>
+                    <p className="text-xs text-zinc-400">Tambahkan tugas langsung ke jobdesk harian eksekutor pilihan</p>
+                  </div>
+                </div>
+                <form onSubmit={handleSpvAddJob} className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama Tugas <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Contoh: Bikin revisi video promo"
+                      value={spvJobDraft.name}
+                      onChange={(e) => setSpvJobDraft(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-pink-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                    />
+                  </div>
+                  <div className="md:w-48 space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Pilih Eksekutor <span className="text-red-400">*</span></label>
+                    <select
+                      value={spvJobDraft.assignee}
+                      onChange={(e) => setSpvJobDraft(prev => ({ ...prev, assignee: e.target.value }))}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-pink-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                    >
+                      {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="md:w-48 space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline <span className="text-red-400">*</span></label>
+                    <input
+                      type="date"
+                      required
+                      value={spvJobDraft.deadline}
+                      onChange={(e) => setSpvJobDraft(prev => ({ ...prev, deadline: e.target.value }))}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-pink-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="submit"
+                      className="w-full md:w-auto bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-pink-900/20 transition-all hover:scale-105"
+                    >
+                      Tambahkan Tugas
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div className="space-y-12">
+                {CREATORS.map(creator => (
+                  <div key={creator.name} className="bg-zinc-950 border border-zinc-800 p-6 rounded-3xl shadow-xl">
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-black text-pink-400 text-sm border border-zinc-700">
+                        {creator.avatar}
+                      </div>
+                      Jobdesk {creator.name}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Kolom Pending / Proses */}
                 <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[500px]">
                   <h4 className="text-sm font-bold text-blue-400 mb-4 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                     Sedang Dikerjakan (Proses)
                   </h4>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').map(req => (
+                    {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').map(req => (
                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
@@ -1836,7 +1931,7 @@ export default function App() {
                         </div>
                       </div>
                     ))}
-                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').length === 0 && (
+                    {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length === 0 && (
                       <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang sedang dikerjakan.</p>
                     )}
                   </div>
@@ -1849,7 +1944,7 @@ export default function App() {
                     Menunggu QC / Revisi
                   </h4>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'QC & Revisi Divisi').map(req => (
+                    {requests.filter(r => r.pic === creator.name && r.status === 'QC & Revisi Divisi').map(req => (
                        <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
@@ -1914,7 +2009,7 @@ export default function App() {
                         </div>
                       </div>
                     ))}
-                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'QC & Revisi Divisi').length === 0 && (
+                    {requests.filter(r => r.pic === creator.name && r.status === 'QC & Revisi Divisi').length === 0 && (
                       <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang menunggu QC.</p>
                     )}
                   </div>
@@ -1927,7 +2022,7 @@ export default function App() {
                     Selesai & Dikirim
                   </h4>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Selesai').map(req => (
+                    {requests.filter(r => r.pic === creator.name && r.status === 'Selesai').map(req => (
                        <div key={req.no} className="bg-zinc-950 border border-emerald-900/30 p-4 rounded-xl opacity-75">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
@@ -1948,11 +2043,14 @@ export default function App() {
                         </div>
                       </div>
                     ))}
-                    {requests.filter(r => r.pic === jobdeskUser && r.status === 'Selesai').length === 0 && (
+                    {requests.filter(r => r.pic === creator.name && r.status === 'Selesai').length === 0 && (
                       <p className="text-xs text-zinc-500 text-center py-8">Belum ada task yang selesai.</p>
                     )}
                   </div>
+                    </div>
+                  </div>
                 </div>
+                ))}
               </div>
             </div>
           )}
