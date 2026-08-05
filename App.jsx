@@ -1953,7 +1953,14 @@ export default function App() {
                           </button>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
-                        <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
+                        <div className="flex items-center flex-wrap gap-2 mt-1 mb-1">
+                          <p className="text-xs text-zinc-500">Pemohon: <span className="font-semibold text-zinc-400">{req.pemohon}</span></p>
+                          {req.pemohon === 'Supervisor' ? (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30">TUGAS SPV</span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
+                          )}
+                        </div>
                         
                         <div className="mt-3 space-y-1">
                           <div className="flex justify-between text-[10px]">
@@ -2003,7 +2010,14 @@ export default function App() {
                           </button>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
-                        <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
+                        <div className="flex items-center flex-wrap gap-2 mt-1 mb-1">
+                          <p className="text-xs text-zinc-500">Pemohon: <span className="font-semibold text-zinc-400">{req.pemohon}</span></p>
+                          {req.pemohon === 'Supervisor' ? (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30">TUGAS SPV</span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
+                          )}
+                        </div>
 
                         <div className="mt-4 pt-3 border-t border-zinc-800">
                           {deliveryRequestId === req.no ? (
