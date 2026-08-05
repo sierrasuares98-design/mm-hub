@@ -580,6 +580,25 @@ export default function App() {
     setActiveRequestSubTab('Review & Antrean');
   };
 
+  const unassignRequest = async (reqNo) => {
+    if (!window.confirm('Apakah Anda yakin ingin membatalkan/mengembalikan tugas ini ke antrean?')) return;
+    const { error } = await supabase
+      .from('requests')
+      .update({ pic: null, estimasiMulmed: null, status: 'Review & Antrean' })
+      .eq('no', reqNo);
+    
+    if (error) {
+      triggerToast('Gagal membatalkan tugas!', 'error');
+      console.error(error);
+    } else {
+      triggerToast('Tugas berhasil dikembalikan ke antrean.', 'success');
+      fetchRequests();
+      if (viewRequestDetail && viewRequestDetail.no === reqNo) {
+        setViewRequestDetail(null);
+      }
+    }
+  };
+
   const assignRequestPic = async (reqNo) => {
     if (!tempEstimasiMulmed) {
       triggerToast('Estimasi penyelesaian dari Multimedia harus diisi!', 'error');
@@ -1400,7 +1419,17 @@ export default function App() {
               </div>
             )}
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-between items-center pt-2">
+              <div>
+                {viewRequestDetail.pic && viewRequestDetail.status !== 'Selesai' && (
+                  <button 
+                    onClick={() => unassignRequest(viewRequestDetail.no)}
+                    className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 text-xs px-4 py-2 rounded-lg transition font-bold"
+                  >
+                    Batalkan Penugasan
+                  </button>
+                )}
+              </div>
               <button 
                 onClick={() => setViewRequestDetail(null)}
                 className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-4 py-2 rounded-lg transition"
@@ -2119,9 +2148,14 @@ export default function App() {
                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl relative group">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
-                          <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded">
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => unassignRequest(req.no)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition bg-zinc-800 rounded" title="Batalkan Penugasan">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                            <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded" title="Edit Jobdesk">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                          </div>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
                         <div className="flex items-center flex-wrap gap-2 mt-1 mb-1">
@@ -2190,9 +2224,14 @@ export default function App() {
                        <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl relative group">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
-                          <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded">
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => unassignRequest(req.no)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition bg-zinc-800 rounded" title="Batalkan Penugasan">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                            <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded" title="Edit Jobdesk">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                          </div>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
                         <div className="flex items-center flex-wrap gap-2 mt-1 mb-1">
