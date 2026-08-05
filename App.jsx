@@ -134,11 +134,7 @@ export default function App() {
     tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }]
   });
 
-  const [spvJobDraft, setSpvJobDraft] = useState({
-    name: '',
-    assignee: CREATORS[0].name,
-    deadline: new Date().toISOString().split('T')[0]
-  });
+  // SPV Quick Add form uses uncontrolled inputs now
 
   const handleAddCheckinTask = () => {
     setCheckinForm(prev => ({
@@ -258,27 +254,32 @@ export default function App() {
     setCheckinForm(prev => ({ ...prev, tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }] }));
   };
 
-  const handleSpvAddJob = async (e) => {
+  const handleQuickAddJob = async (e, creatorName) => {
     e.preventDefault();
-    if (!spvJobDraft.name.trim()) {
+    const form = e.target;
+    const input = form.elements.taskName;
+    const taskName = input.value;
+    
+    if (!taskName.trim()) {
       triggerToast('Nama tugas tidak boleh kosong!', 'error');
       return;
     }
 
+    const today = new Date().toISOString().split('T')[0];
     const count = requests.length + 1;
     const requestNo = `SPV-${String(count).padStart(3, '0')}-${Math.floor(Math.random()*1000)}`;
 
     const newReq = {
       no: requestNo,
-      tanggalRequest: new Date().toISOString().split('T')[0],
+      tanggalRequest: today,
       pemohon: 'Supervisor',
       jenisKebutuhan: 'Tugas SPV',
-      namaProject: spvJobDraft.name,
+      namaProject: taskName,
       briefVisual: 'Tugas ditambahkan langsung oleh Supervisor ke agenda harian.',
-      deadlinePemohon: spvJobDraft.deadline,
-      estimasiSelesai: spvJobDraft.deadline,
+      deadlinePemohon: today,
+      estimasiSelesai: today,
       estimasiMulmed: '',
-      pic: spvJobDraft.assignee,
+      pic: creatorName,
       status: 'Proses Desain', 
       linkHasilAkhir: ''
     };
@@ -289,8 +290,8 @@ export default function App() {
       triggerToast('Gagal menambahkan tugas SPV ke database.', 'error');
     } else {
       setRequests([newReq, ...requests]);
-      triggerToast(`Tugas berhasil ditambahkan untuk ${spvJobDraft.assignee}!`);
-      setSpvJobDraft({ name: '', assignee: spvJobDraft.assignee, deadline: new Date().toISOString().split('T')[0] });
+      triggerToast(`Tugas berhasil ditambahkan untuk ${creatorName}!`);
+      input.value = '';
     }
   };
 
@@ -1826,60 +1827,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Form Tambah Tugas oleh SPV */}
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-600 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-900/30">
-                    <Plus className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-md font-bold text-white">Buat Agenda / Tugas Baru</h4>
-                    <p className="text-xs text-zinc-400">Tambahkan tugas langsung ke jobdesk harian eksekutor pilihan</p>
-                  </div>
-                </div>
-                <form onSubmit={handleSpvAddJob} className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama Tugas <span className="text-red-400">*</span></label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: Bikin revisi video promo"
-                      value={spvJobDraft.name}
-                      onChange={(e) => setSpvJobDraft(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-pink-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                    />
-                  </div>
-                  <div className="md:w-48 space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Pilih Eksekutor <span className="text-red-400">*</span></label>
-                    <select
-                      value={spvJobDraft.assignee}
-                      onChange={(e) => setSpvJobDraft(prev => ({ ...prev, assignee: e.target.value }))}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-pink-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                    >
-                      {CREATORS.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="md:w-48 space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline <span className="text-red-400">*</span></label>
-                    <input
-                      type="date"
-                      required
-                      value={spvJobDraft.deadline}
-                      onChange={(e) => setSpvJobDraft(prev => ({ ...prev, deadline: e.target.value }))}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-pink-500 focus:outline-none rounded-lg p-3 text-sm text-zinc-100 transition"
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button
-                      type="submit"
-                      className="w-full md:w-auto bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-pink-900/20 transition-all hover:scale-105"
-                    >
-                      Tambahkan Tugas
-                    </button>
-                  </div>
-                </form>
-              </div>
-
               <div className="space-y-12">
                 {CREATORS.map(creator => (
                   <div key={creator.name} className="bg-zinc-950 border border-zinc-800 p-6 rounded-3xl shadow-xl">
@@ -1892,10 +1839,24 @@ export default function App() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* Kolom Pending / Proses */}
                 <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[500px]">
-                  <h4 className="text-sm font-bold text-blue-400 mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    Sedang Dikerjakan (Proses)
+                  <h4 className="text-sm font-bold text-blue-400 mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                      Sedang Dikerjakan (Proses)
+                    </div>
                   </h4>
+                  <form onSubmit={(e) => handleQuickAddJob(e, creator.name)} className="mb-4 flex gap-2">
+                    <input 
+                      type="text" 
+                      name="taskName"
+                      required
+                      placeholder={`+ Tambah tugas untuk ${creator.name}...`} 
+                      className="flex-1 bg-zinc-950 border border-zinc-800 focus:border-blue-500 focus:outline-none rounded-lg px-3 py-2 text-xs text-zinc-100 transition"
+                    />
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 rounded-lg text-xs transition">
+                      Add
+                    </button>
+                  </form>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                     {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').map(req => (
                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
