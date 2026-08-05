@@ -116,6 +116,7 @@ export default function App() {
   const [viewDetailCard, setViewDetailCard] = useState(null); 
   const [viewRequestDetail, setViewRequestDetail] = useState(null);
   const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
+  const [editJobModal, setEditJobModal] = useState(null);
   const [writeScriptModal, setWriteScriptModal] = useState(null);
   const [tempScript, setTempScript] = useState('');
   const [newIdeaDraft, setNewIdeaDraft] = useState({
@@ -292,6 +293,27 @@ export default function App() {
       setRequests([newReq, ...requests]);
       triggerToast(`Tugas berhasil ditambahkan untuk ${creatorName}!`);
       input.value = '';
+    }
+  };
+
+  const handleEditJobSave = async (e) => {
+    e.preventDefault();
+    const { error } = await supabase
+      .from('requests')
+      .update({
+        namaProject: editJobModal.namaProject,
+        briefVisual: editJobModal.briefVisual,
+        deadlinePemohon: editJobModal.deadlinePemohon,
+        estimasiMulmed: editJobModal.estimasiMulmed
+      })
+      .eq('no', editJobModal.no);
+
+    if (error) {
+      triggerToast('Gagal menyimpan perubahan.', 'error');
+    } else {
+      setRequests(requests.map(r => r.no === editJobModal.no ? editJobModal : r));
+      triggerToast('Tugas berhasil diperbarui!');
+      setEditJobModal(null);
     }
   };
 
@@ -978,6 +1000,70 @@ export default function App() {
           >
             Bypass Login (Mode Dev)
           </button>
+          {/* Modal Edit Jobdesk */}
+        {editJobModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              <button onClick={() => setEditJobModal(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-white">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <h2 className="text-xl font-bold text-white mb-2">Edit Tugas</h2>
+              <p className="text-xs text-zinc-400 mb-6 font-mono">{editJobModal.no}</p>
+              
+              <form onSubmit={handleEditJobSave} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Nama Project / Tugas</label>
+                  <input
+                    type="text"
+                    required
+                    value={editJobModal.namaProject}
+                    onChange={(e) => setEditJobModal(prev => ({ ...prev, namaProject: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-blue-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                  />
+                </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase">Brief / Notes</label>
+                  <textarea
+                    rows="3"
+                    value={editJobModal.briefVisual}
+                    onChange={(e) => setEditJobModal(prev => ({ ...prev, briefVisual: e.target.value }))}
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-blue-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Deadline Pemohon</label>
+                    <input
+                      type="date"
+                      value={editJobModal.deadlinePemohon}
+                      onChange={(e) => setEditJobModal(prev => ({ ...prev, deadlinePemohon: e.target.value }))}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-blue-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Estimasi Mulmed</label>
+                    <input
+                      type="date"
+                      value={editJobModal.estimasiMulmed || ''}
+                      onChange={(e) => setEditJobModal(prev => ({ ...prev, estimasiMulmed: e.target.value }))}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-blue-500 focus:outline-none rounded-lg p-2.5 text-xs text-zinc-100 transition"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 flex justify-end gap-2 border-t border-zinc-800">
+                  <button type="button" onClick={() => setEditJobModal(null)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white transition">Batal</button>
+                  <button type="submit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition">Simpan Perubahan</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     );
@@ -1859,9 +1945,12 @@ export default function App() {
                   </form>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                     {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').map(req => (
-                      <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
+                      <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl relative group">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
+                          <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          </button>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
                         <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
@@ -1906,9 +1995,12 @@ export default function App() {
                   </h4>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                     {requests.filter(r => r.pic === creator.name && r.status === 'QC & Revisi Divisi').map(req => (
-                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
+                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl relative group">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
+                          <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          </button>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
                         <p className="text-xs text-zinc-500 mt-1">Pemohon: {req.pemohon}</p>
