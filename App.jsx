@@ -1069,7 +1069,7 @@ export default function App() {
     );
   }
   const pendingRequestsCount = requests.filter(r => r.status === 'Review & Antrean').length;
-  const myJobdeskCount = requests.filter(r => r.pic === jobdeskUser && r.status === 'Proses Desain').length;
+  const myJobdeskCount = requests.filter(r => r.status === 'Proses Desain').length;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex flex-col md:flex-row antialiased overflow-x-hidden selection:bg-violet-600 selection:text-white">
@@ -1281,11 +1281,16 @@ export default function App() {
           
           <div className="mt-6 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shadow overflow-hidden">
-                {session?.user?.user_metadata?.avatar_url ? (
-                  <img src={session.user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  'U'
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shadow overflow-hidden">
+                  {session?.user?.user_metadata?.avatar_url ? (
+                    <img src={session.user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    'U'
+                  )}
+                </div>
+                {myJobdeskCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 border border-zinc-900 rounded-full"></span>
                 )}
               </div>
               <div className="min-w-0">
@@ -1917,10 +1922,22 @@ export default function App() {
                 {CREATORS.map(creator => (
                   <div key={creator.name} className="bg-zinc-950 border border-zinc-800 p-6 rounded-3xl shadow-xl">
                     <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-black text-pink-400 text-sm border border-zinc-700">
-                        {creator.avatar}
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-black text-pink-400 text-sm border border-zinc-700 shadow-md">
+                          {creator.avatar}
+                        </div>
+                        {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length > 0 && (
+                          <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-zinc-950 animate-bounce shadow-lg shadow-red-500/50">
+                            {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length}
+                          </div>
+                        )}
                       </div>
-                      Jobdesk {creator.name}
+                      <div className="flex flex-col">
+                        <span>Jobdesk {creator.name}</span>
+                        <span className="text-[10px] text-zinc-500 font-normal">
+                          {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length} Task Aktif
+                        </span>
+                      </div>
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* Kolom Pending / Proses */}
