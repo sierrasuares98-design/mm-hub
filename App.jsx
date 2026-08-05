@@ -2301,7 +2301,14 @@ export default function App() {
                                   
                                   <div className="mt-2 text-[11px] text-zinc-400 space-y-1">
                                     <p><strong className="text-zinc-500">Kebutuhan:</strong> {req.jenisKebutuhan}</p>
-                                    <p><strong className="text-zinc-500">Pemohon:</strong> {req.pemohon}</p>
+                                    <div className="flex items-center flex-wrap gap-2">
+                                      <p><strong className="text-zinc-500">Pemohon:</strong> <span className="text-zinc-300 font-semibold">{req.pemohon}</span></p>
+                                      {req.pemohon === 'Supervisor' ? (
+                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30">TUGAS SPV</span>
+                                      ) : (
+                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">REQ DIVISI</span>
+                                      )}
+                                    </div>
                                     <p><strong className="text-zinc-500">PIC Desainer:</strong> {req.pic}</p>
                                   </div>
                                 </div>
