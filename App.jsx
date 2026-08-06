@@ -102,7 +102,9 @@ export default function App() {
   
   const fetchContentCards = async () => {
     const { data, error } = await supabase.from('content_cards').select('*').order('created_at', { ascending: false });
-    if (!error && data) setContentCards(data);
+    if (!error && data) {
+      setContentCards(data.map(d => ({ ...d, revisionCount: d.revision_count || 0 })));
+    }
   };
   const fetchRequests = async () => {
     const { data, error } = await supabase
@@ -356,8 +358,16 @@ export default function App() {
     };
 
     if (editingContentId) {
+      const dbCardData = { ...cardData };
+      delete dbCardData.format;
+      delete dbCardData.collaborator;
+      const { error } = await supabase.from('content_cards').update(dbCardData).eq('id', editingContentId);
+      if (error) {
+         triggerToast('Gagal mengupdate Supabase: ' + error.message, 'error');
+         console.error('Supabase error:', error);
+         return;
+      }
       setContentCards(prev => prev.map(c => c.id === editingContentId ? { ...c, ...cardData } : c));
-      await supabase.from('content_cards').update(cardData).eq('id', editingContentId);
       triggerToast('Ide konten berhasil diperbarui!', 'success');
       setEditingContentId(null);
     } else {
@@ -485,7 +495,10 @@ export default function App() {
     }
     
     setContentCards(prev => prev.map(c => c.id === cardId ? updatedCard : c));
-    await supabase.from('content_cards').upsert(updatedCard);
+    const dbCard = { ...updatedCard, revision_count: updatedCard.revisionCount };
+    delete dbCard.revisionCount; delete dbCard.format; delete dbCard.collaborator;
+    const { error } = await supabase.from('content_cards').upsert(dbCard);
+    if (error) triggerToast('Gagal mengupdate database: ' + error.message, 'error');
   };
 
   const handleQcApproval = async (approve) => {
@@ -516,7 +529,10 @@ export default function App() {
     }
     
     setContentCards(prev => prev.map(c => c.id === qcModalCard.id ? updatedCard : c));
-    await supabase.from('content_cards').upsert(updatedCard);
+    const dbCard = { ...updatedCard, revision_count: updatedCard.revisionCount };
+    delete dbCard.revisionCount; delete dbCard.format; delete dbCard.collaborator;
+    const { error } = await supabase.from('content_cards').upsert(dbCard);
+    if (error) triggerToast('Gagal mengupdate database: ' + error.message, 'error');
     setQcModalCard(null);
   };
 
@@ -526,7 +542,10 @@ export default function App() {
     const updatedCard = { ...card, status: 'Published' };
     
     setContentCards(prev => prev.map(c => c.id === cardId ? updatedCard : c));
-    await supabase.from('content_cards').upsert(updatedCard);
+    const dbCard = { ...updatedCard, revision_count: updatedCard.revisionCount };
+    delete dbCard.revisionCount; delete dbCard.format; delete dbCard.collaborator;
+    const { error } = await supabase.from('content_cards').upsert(dbCard);
+    if (error) triggerToast('Gagal mengupdate database: ' + error.message, 'error');
     triggerToast('Konten berhasil diterbitkan secara Live!');
   };
 
@@ -708,16 +727,32 @@ export default function App() {
       stage: 'Ide',
       status: 'Ide'
     };
+    const dbCard = { ...newCard, revision_count: newCard.revisionCount };
+    delete dbCard.revisionCount;
+    // Remove fields not in Supabase yet
+    delete dbCard.format;
+    delete dbCard.collaborator;
+
+    const { error } = await supabase.from('content_cards').insert(dbCard);
+    if (error) {
+      triggerToast('Gagal menyimpan ke Supabase: ' + error.message, 'error');
+      console.error('Supabase error:', error);
+      return;
+    }
+    
     setContentCards(prev => [...prev, newCard]);
-    await supabase.from('content_cards').insert(newCard);
     triggerToast('Ide baru berhasil ditambahkan ke sub-tab Ide!');
     setActiveSubTab('Ide');
   };
 
   const deleteContentCard = async (cardId) => {
     if (window.confirm('Yakin ingin membatalkan/menghapus konten ini?')) {
+      const { error } = await supabase.from('content_cards').delete().eq('id', cardId);
+      if (error) {
+        triggerToast('Gagal menghapus dari Supabase: ' + error.message, 'error');
+        return;
+      }
       setContentCards(prev => prev.filter(c => c.id !== cardId));
-      await supabase.from('content_cards').delete().eq('id', cardId);
       triggerToast('Konten berhasil dibatalkan/dihapus.', 'success');
     }
   };
