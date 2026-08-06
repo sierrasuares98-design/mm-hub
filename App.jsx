@@ -331,7 +331,7 @@ export default function App() {
     }
   };
 
-  const handleAddIdeaSubmit = (e) => {
+  const handleAddIdeaSubmit = async (e) => {
     e.preventDefault();
     if (!newIdeaDraft.title) {
       triggerToast('Judul ide tidak boleh kosong!', 'error');
@@ -344,7 +344,7 @@ export default function App() {
     if (newIdeaDraft.brand.startsWith('thr-')) autoPlatform = 'Threads';
     if (newIdeaDraft.brand.startsWith('fb-')) autoPlatform = 'Facebook';
 
-    addNewContentCard({
+    const cardData = {
       title: newIdeaDraft.title,
       brand: newIdeaDraft.brand,
       collaborator: newIdeaDraft.collaborator || undefined,
@@ -353,7 +353,16 @@ export default function App() {
       assignee: newIdeaDraft.assignee,
       date: newIdeaDraft.date,
       notes: newIdeaDraft.notes
-    });
+    };
+
+    if (editingContentId) {
+      setContentCards(prev => prev.map(c => c.id === editingContentId ? { ...c, ...cardData } : c));
+      await supabase.from('content_cards').update(cardData).eq('id', editingContentId);
+      triggerToast('Ide konten berhasil diperbarui!', 'success');
+      setEditingContentId(null);
+    } else {
+      addNewContentCard(cardData);
+    }
     const todayStr = new Date().toLocaleDateString('id-ID');
     const taskText = `\n- [Auto Task] Bikin konten: ${newIdeaDraft.title}`;
     
@@ -691,21 +700,24 @@ export default function App() {
   };
 
   /* Quick add content card idea */
-  const addNewContentCard = (cardData) => {
-    setContentCards(prev => [...prev, {
+  const addNewContentCard = async (cardData) => {
+    const newCard = {
       id: `c-${Date.now()}`,
       ...cardData,
       revisionCount: 0,
       stage: 'Ide',
       status: 'Ide'
-    }]);
+    };
+    setContentCards(prev => [...prev, newCard]);
+    await supabase.from('content_cards').insert(newCard);
     triggerToast('Ide baru berhasil ditambahkan ke sub-tab Ide!');
     setActiveSubTab('Ide');
   };
 
-  const deleteContentCard = (cardId) => {
+  const deleteContentCard = async (cardId) => {
     if (window.confirm('Yakin ingin membatalkan/menghapus konten ini?')) {
       setContentCards(prev => prev.filter(c => c.id !== cardId));
+      await supabase.from('content_cards').delete().eq('id', cardId);
       triggerToast('Konten berhasil dibatalkan/dihapus.', 'success');
     }
   };
