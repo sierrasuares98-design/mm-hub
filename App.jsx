@@ -65,10 +65,7 @@ export default function App() {
   const isPublicMode = window.location.pathname === '/request' || window.location.hash.includes('request') || new URLSearchParams(window.location.search).get('view') === 'request';
   
   /* State lists */
-  const [contentCards, setContentCards] = useState(() => {
-    const saved = localStorage.getItem('mmhub_contentCards');
-    return saved ? JSON.parse(saved) : INITIAL_CONTENT_CARDS;
-  });
+  const [contentCards, setContentCards] = useState([]);
   const [requests, setRequests] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [disciplinaryRecords, setDisciplinaryRecords] = useState([]);
@@ -77,9 +74,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_PILLARS;
   });
 
-  useEffect(() => {
-    localStorage.setItem('mmhub_contentCards', JSON.stringify(contentCards));
-  }, [contentCards]);
+  
 
   useEffect(() => {
     localStorage.setItem('mmhub_pillars', JSON.stringify(pillars));
@@ -101,9 +96,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (session || isPublicMode) fetchRequests();
+    if (session || isPublicMode) { fetchRequests(); fetchContentCards(); }
   }, [session, isPublicMode]);
 
+  
+  const fetchContentCards = async () => {
+    const { data, error } = await supabase.from('content_cards').select('*').order('created_at', { ascending: false });
+    if (!error && data) setContentCards(data);
+  };
   const fetchRequests = async () => {
     const { data, error } = await supabase
       .from('requests')
@@ -129,6 +129,7 @@ export default function App() {
   const [viewDetailCard, setViewDetailCard] = useState(null); 
   const [viewRequestDetail, setViewRequestDetail] = useState(null);
   const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
+  const [editingContentId, setEditingContentId] = useState(null);
   const [editJobModal, setEditJobModal] = useState(null);
   const [writeScriptModal, setWriteScriptModal] = useState(null);
   const [tempScript, setTempScript] = useState('');
@@ -451,53 +452,43 @@ export default function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const advancePipelineStage = (cardId, currentStage) => {
+  const advancePipelineStage = async (cardId, currentStage) => {
+    const card = contentCards.find(c => c.id === cardId);
+    if (!card) return;
+    let updatedCard = { ...card };
+
     if (currentStage === 'Ide') {
-      setContentCards(prev => prev.map(c => 
-        c.id === cardId 
-          ? { ...c, stage: 'Script/Brief', status: 'Scripting', notes: `${c.notes || ''} | Ide disetujui` } 
-          : c
-      ));
+      updatedCard = { ...card, stage: 'Script/Brief', status: 'Scripting', notes: `${card.notes || ''} | Ide disetujui` };
       setActiveSubTab('Script/Brief');
       triggerToast('Ide disetujui! Berhasil dipindahkan ke tahap Script/Brief.');
     } else if (currentStage === 'Script/Brief') {
-      setContentCards(prev => prev.map(c => 
-        c.id === cardId 
-          ? { ...c, stage: 'Produksi', status: 'Syuting/Take', notes: `${c.notes || ''} | Script disetujui` } 
-          : c
-      ));
+      updatedCard = { ...card, stage: 'Produksi', status: 'Syuting/Take', notes: `${card.notes || ''} | Script disetujui` };
       setActiveSubTab('Produksi');
       triggerToast('Script disetujui! Konten masuk ke tahap Produksi/Syuting.');
     } else if (currentStage === 'Produksi') {
-      setContentCards(prev => prev.map(c => 
-        c.id === cardId 
-          ? { ...c, stage: 'Editing', status: 'Editing', notes: `${c.notes || ''} | Aset mentah siap` } 
-          : c
-      ));
+      updatedCard = { ...card, stage: 'Editing', status: 'Editing', notes: `${card.notes || ''} | Aset mentah siap` };
       setActiveSubTab('Editing');
       triggerToast('Aset selesai! Konten dilempar ke meja Editing.');
     } else if (currentStage === 'Editing') {
-      const card = contentCards.find(c => c.id === cardId);
-      if (card) {
-        setQcModalCard(card);
-        setRevisionNote('');
-      }
+      setQcModalCard(card);
+      setRevisionNote('');
+      return;
     }
+    
+    setContentCards(prev => prev.map(c => c.id === cardId ? updatedCard : c));
+    await supabase.from('content_cards').upsert(updatedCard);
   };
 
-  const handleQcApproval = (approve) => {
+  const handleQcApproval = async (approve) => {
     if (!qcModalCard) return;
+    let updatedCard = { ...qcModalCard };
 
     if (approve) {
       if (revisionNote.trim() !== '') {
         triggerToast('Gagal! Anda mengetik catatan revisi tetapi malah memencet tombol "Setujui". Hapus catatan jika memang ingin menyetujui.', 'error');
         return;
       }
-      setContentCards(prev => prev.map(c => 
-        c.id === qcModalCard.id 
-          ? { ...c, stage: 'Publish', status: 'Scheduled', notes: `${c.notes} | Disetujui oleh SPV` } 
-          : c
-      ));
+      updatedCard = { ...qcModalCard, stage: 'Publish', status: 'Scheduled', notes: `${qcModalCard.notes} | Disetujui oleh SPV` };
       setActiveSubTab('Publish');
       triggerToast(`Konten disetujui oleh SPV! Siap dijadwalkan.`);
     } else {
@@ -505,27 +496,28 @@ export default function App() {
         triggerToast('Wajib mengisi catatan revisi agar tim tahu apa yang perlu diperbaiki!', 'error');
         return;
       }
-      setContentCards(prev => prev.map(c => 
-        c.id === qcModalCard.id 
-          ? { 
-              ...c, 
-              stage: 'Editing',
-              status: 'Editing', 
-              revisionCount: c.revisionCount + 1, 
-              notes: `${c.notes} | Revisi SPV: ${revisionNote}` 
-            } 
-          : c
-      ));
+      updatedCard = {
+        ...qcModalCard, 
+        stage: 'Editing',
+        status: 'Editing', 
+        revisionCount: qcModalCard.revisionCount + 1, 
+        notes: `${qcModalCard.notes} | Revisi SPV: ${revisionNote}`
+      };
       triggerToast(`Konten dikembalikan untuk Revisi.`);
     }
+    
+    setContentCards(prev => prev.map(c => c.id === qcModalCard.id ? updatedCard : c));
+    await supabase.from('content_cards').upsert(updatedCard);
     setQcModalCard(null);
-    setRevisionNote('');
   };
 
-  const publishNow = (cardId) => {
-    setContentCards(prev => prev.map(c => 
-      c.id === cardId ? { ...c, status: 'Published' } : c
-    ));
+  const publishNow = async (cardId) => {
+    const card = contentCards.find(c => c.id === cardId);
+    if (!card) return;
+    const updatedCard = { ...card, status: 'Published' };
+    
+    setContentCards(prev => prev.map(c => c.id === cardId ? updatedCard : c));
+    await supabase.from('content_cards').upsert(updatedCard);
     triggerToast('Konten berhasil diterbitkan secara Live!');
   };
 
@@ -709,6 +701,27 @@ export default function App() {
     }]);
     triggerToast('Ide baru berhasil ditambahkan ke sub-tab Ide!');
     setActiveSubTab('Ide');
+  };
+
+  const deleteContentCard = (cardId) => {
+    if (window.confirm('Yakin ingin membatalkan/menghapus konten ini?')) {
+      setContentCards(prev => prev.filter(c => c.id !== cardId));
+      triggerToast('Konten berhasil dibatalkan/dihapus.', 'success');
+    }
+  };
+
+  const openEditContentModal = (card) => {
+    setEditingContentId(card.id);
+    setNewIdeaDraft({
+      title: card.title,
+      brand: card.brand,
+      collaborator: card.collaborator || '',
+      assignee: card.assignee,
+      date: card.date,
+      notes: card.notes || '',
+      format: card.format || 'Reels / Video'
+    });
+    setShowAddIdeaModal(true);
   };
 
   const creatorAverages = CREATORS.map(creator => {
@@ -1944,7 +1957,13 @@ export default function App() {
                                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded border truncate max-w-[120px] ${brandObj?.color || 'border-zinc-700'}`}>
                                       {brandObj?.name || card.brand}
                                     </span>
-                                    <div className="flex gap-1">
+                                    <div className="flex items-center gap-1">
+                                      <button onClick={(e) => { e.stopPropagation(); deleteContentCard(card.id); }} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition bg-zinc-800 rounded" title="Batalkan/Hapus Konten">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                      </button>
+                                      <button onClick={(e) => { e.stopPropagation(); openEditContentModal(card); }} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded" title="Edit Konten">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                      </button>
                                       <span className="text-[9px] font-bold text-cyan-400 bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-900/30">
                                         {card.format || 'Reels / Video'}
                                       </span>
@@ -3128,7 +3147,7 @@ export default function App() {
         {showAddIdeaModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-              <button onClick={() => setShowAddIdeaModal(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white">
+              <button onClick={() => { setShowAddIdeaModal(false); setEditingContentId(null); }} className="absolute top-4 right-4 text-zinc-500 hover:text-white">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -3219,8 +3238,8 @@ export default function App() {
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3">
-                  <button type="button" onClick={() => setShowAddIdeaModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white transition">Batal</button>
-                  <button type="submit" className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition">Simpan Ide</button>
+                  <button type="button" onClick={() => { setShowAddIdeaModal(false); setEditingContentId(null); }} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white transition">Batal</button>
+                  <button type="submit" className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 transition">{editingContentId ? 'Update Ide' : 'Simpan Ide'}</button>
                 </div>
               </form>
             </div>
