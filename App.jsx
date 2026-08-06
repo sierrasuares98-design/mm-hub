@@ -65,7 +65,7 @@ export default function App() {
   const isPublicMode = window.location.pathname === '/request' || window.location.hash.includes('request') || new URLSearchParams(window.location.search).get('view') === 'request';
   
   /* State lists */
-  const [contentCards, setContentCards] = useState([]);
+  const [contentCards, setContentCards] = useState(() => { const saved = localStorage.getItem('mmhub_contentCards'); return saved ? JSON.parse(saved) : INITIAL_CONTENT_CARDS; });
   const [requests, setRequests] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [disciplinaryRecords, setDisciplinaryRecords] = useState([]);
