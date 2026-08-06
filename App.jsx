@@ -12,8 +12,6 @@ const BRANDS = [
   { id: 'ig-klaten', name: 'IG @nusaqu.klaten', color: 'border-violet-500/30 bg-violet-950/20 text-violet-400' },
   { id: 'thr-nusaqu', name: 'Thr @nusaqu.id', color: 'border-zinc-500/30 bg-zinc-950/20 text-zinc-400' },
   { id: 'tt-nusaqu', name: 'TT @nusaqu.id', color: 'border-black/30 bg-zinc-900/80 text-white' },
-  { id: 'tt-nsf', name: 'TT @nusasentosafarm', color: 'border-black/30 bg-zinc-900/80 text-white' },
-  { id: 'yt-nsf', name: 'YT Nusa Sentosa Farm', color: 'border-red-500/30 bg-red-950/20 text-red-400' },
   { id: 'yt-nusaqu', name: 'YT NusaQu Indonesia', color: 'border-red-500/30 bg-red-950/20 text-red-400' },
   { id: 'ig-nusafeed', name: 'IG @nusafeed', color: 'border-amber-500/30 bg-amber-950/20 text-amber-400' },
   { id: 'ig-nusawaste', name: 'IG @nusawaste.id', color: 'border-teal-500/30 bg-teal-950/20 text-teal-400' },
