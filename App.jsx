@@ -35,10 +35,11 @@ const CREATORS = [
 const INITIAL_CONTENT_CARDS = [];
 
 const INITIAL_PILLARS = [
-  { id: 1, brand: 'all', name: 'Edukasi & Tips', description: 'Membagikan insight, life hack, atau pengetahuan terkait industri.', targetPercentage: 40 },
-  { id: 2, brand: 'all', name: 'Hiburan & Tren', description: 'Meme, parodi, atau mengikuti tren audio/video viral.', targetPercentage: 30 },
-  { id: 3, brand: 'all', name: 'Hard Selling', description: 'Promosi langsung, diskon, pengumuman produk baru dengan CTA beli.', targetPercentage: 20 },
-  { id: 4, brand: 'all', name: 'Behind the Scenes', description: 'Memperlihatkan kultur tim untuk kedekatan emosional.', targetPercentage: 10 }
+  { id: 1, brand: 'all', name: 'Entertainment & High-Reach', description: 'Tujuan: Menghentikan scrolling, memicu viralitas, tambah followers awam. Target: TikTok & IG Reels. Tone: Santai, humoris, relatable.', targetPercentage: 25 },
+  { id: 2, brand: 'all', name: 'Edukasi Terapan & Transparansi', description: 'Tujuan: Edukasi logika pembeli, kikis keraguan, bangun otoritas tepercaya. Target: YT Long-Form, IG Reels, TikTok. Tone: Informatif, tajam, objektif.', targetPercentage: 25 },
+  { id: 3, brand: 'all', name: 'Branding & Brand Gravity', description: 'Tujuan: Pride, persepsi kelas atas, jaminan mutu Bintang 5 via figur Pak Nanang. Target: IG Nusaqu & YT. Tone: Premium, inspiratif, berwibawa.', targetPercentage: 20 },
+  { id: 4, brand: 'all', name: 'Social Proof & Validation', description: 'Tujuan: Kikis keraguan akhir, memicu FOMO (bukti transaksi/testimoni). Target: IG Nusafarm, Meta Ads, IG Reels. Tone: Meyakinkan, dramatis, authentic.', targetPercentage: 15 },
+  { id: 5, brand: 'all', name: 'Konversi & Direct Sales', description: 'Tujuan: Dorong transaksi instan (qualified leads & booking). Target: IG Nusafarm, TikTok Live, Meta Ads. Tone: Persuasif, action-oriented, hard-sell.', targetPercentage: 15 }
 ];
 
 const PIPELINE_STAGES = [
