@@ -27,7 +27,8 @@ const CREATORS = [
   { name: 'Fathan', role: 'Creative Content Marketing', avatar: 'FT', initialRevisionRate: 1.0 },
   { name: 'Naufal', role: 'Creative Content Marketing', avatar: 'NF', initialRevisionRate: 1.2 },
   { name: 'Resti', role: 'Creative Content Marketing', avatar: 'RS', initialRevisionRate: 1.1 },
-  { name: 'Tyo', role: 'Creative Content Marketing', avatar: 'TY', initialRevisionRate: 1.5 }
+  { name: 'Tyo', role: 'Creative Content Marketing', avatar: 'TY', initialRevisionRate: 1.5 },
+  { name: 'Aldo', role: 'Junior Production Assistant', avatar: 'AL', initialRevisionRate: 1.0 }
 ];
 
 const INITIAL_CONTENT_CARDS = [];
@@ -67,8 +68,14 @@ export default function App() {
   /* State lists */
   const [contentCards, setContentCards] = useState(() => { const saved = localStorage.getItem('mmhub_contentCards'); return saved ? JSON.parse(saved) : INITIAL_CONTENT_CARDS; });
   const [requests, setRequests] = useState([]);
-  const [checkins, setCheckins] = useState([]);
-  const [disciplinaryRecords, setDisciplinaryRecords] = useState([]);
+  const [checkins, setCheckins] = useState(() => {
+    const saved = localStorage.getItem('mmhub_checkins');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [disciplinaryRecords, setDisciplinaryRecords] = useState(() => {
+    const saved = localStorage.getItem('mmhub_disciplinary');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [pillars, setPillars] = useState(() => {
     const saved = localStorage.getItem('mmhub_pillars');
     return saved ? JSON.parse(saved) : INITIAL_PILLARS;
@@ -79,6 +86,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('mmhub_pillars', JSON.stringify(pillars));
   }, [pillars]);
+
+  useEffect(() => {
+    localStorage.setItem('mmhub_checkins', JSON.stringify(checkins));
+  }, [checkins]);
+
+  useEffect(() => {
+    localStorage.setItem('mmhub_disciplinary', JSON.stringify(disciplinaryRecords));
+  }, [disciplinaryRecords]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -96,8 +111,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (session || isPublicMode) { fetchRequests(); fetchContentCards(); }
-  }, [session, isPublicMode]);
+    if (session || isPublicMode || bypassAuth) { fetchRequests(); fetchContentCards(); }
+  }, [session, isPublicMode, bypassAuth]);
 
   
   const fetchContentCards = async () => {
@@ -147,93 +162,28 @@ export default function App() {
 
   const [checkinForm, setCheckinForm] = useState({
     name: 'Fathan',
-    time: '08:30',
-    tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }]
+    time: '08:30'
   });
 
   // SPV Quick Add form uses uncontrolled inputs now
 
-  const handleAddCheckinTask = () => {
-    setCheckinForm(prev => ({
-      ...prev,
-      tasks: [...prev.tasks, { name: '', deadline: new Date().toISOString().split('T')[0] }]
-    }));
-  };
-
-  const handleUpdateCheckinTask = (index, field, value) => {
-    setCheckinForm(prev => {
-      const newTasks = [...prev.tasks];
-      newTasks[index][field] = value;
-      return { ...prev, tasks: newTasks };
-    });
-  };
-
-  const handleRemoveCheckinTask = (index) => {
-    setCheckinForm(prev => {
-      const newTasks = prev.tasks.filter((_, i) => i !== index);
-      return { ...prev, tasks: newTasks };
-    });
-  };
-
   const handleCheckinSubmit = async (e) => {
     e.preventDefault();
-    const validTasks = checkinForm.tasks.filter(t => t.name.trim() !== '');
-    if (validTasks.length === 0) {
-      triggerToast('Wajib mengisi minimal 1 task hari ini!', 'error');
-      return;
-    }
     
-    // Construct plan string for the check-in log
-    const constructedPlan = validTasks.map((t, i) => `${i+1}. ${t.name} (Target: ${new Date(t.deadline).toLocaleDateString('id-ID', {day:'numeric', month:'short'})})`).join('\n');
-
     const isLate = checkinForm.time > '08:15';
     setCheckins(prev => [
       {
         id: Date.now(),
         name: checkinForm.name,
         time: checkinForm.time,
-        plan: constructedPlan,
+        plan: isLate ? "Hadir (Terlambat)" : "Hadir (Tepat Waktu)",
         date: new Date().toLocaleDateString('id-ID'),
         isLate
       },
       ...prev
     ]);
     
-    // Insert into Jobdesk Pribadi (requests table)
-    let addedCount = 0;
-    const newReqs = [];
-    for (const task of validTasks) {
-      const count = requests.length + addedCount + 1;
-      const requestNo = `IN-${String(count).padStart(3, '0')}-${Math.floor(Math.random()*1000)}`;
-      
-      const newReq = {
-        no: requestNo,
-        tanggalRequest: new Date().toISOString().split('T')[0],
-        pemohon: checkinForm.name, // The user themselves
-        jenisKebutuhan: 'Inisiatif Harian',
-        namaProject: task.name,
-        briefVisual: 'Task inisiatif ditambahkan otomatis dari Daily Check-in.',
-        deadlinePemohon: task.deadline,
-        estimasiSelesai: task.deadline,
-        estimasiMulmed: '',
-        pic: checkinForm.name,
-        status: 'Proses Desain', 
-        linkHasilAkhir: ''
-      };
-      
-      const { error } = await supabase.from('requests').insert([newReq]);
-      if (!error) {
-        newReqs.push(newReq);
-        addedCount++;
-      }
-    }
-    
-    if (newReqs.length > 0) {
-      setRequests([...newReqs, ...requests]);
-      triggerToast(`Check-in sukses! ${newReqs.length} task masuk ke Jobdesk.`);
-    } else {
-      triggerToast(`Check-in berhasil, namun gagal menyimpan task ke database.`, 'error');
-    }
+    triggerToast(`Check-in sukses!`);
 
     if (isLate) {
       setDisciplinaryRecords(prevRecords => {
@@ -268,7 +218,7 @@ export default function App() {
       });
     }
 
-    setCheckinForm(prev => ({ ...prev, tasks: [{ name: '', deadline: new Date().toISOString().split('T')[0] }] }));
+    setCheckinForm(prev => ({ ...prev, time: '' }));
   };
 
   const handleQuickAddJob = async (e, creatorName) => {
@@ -3101,43 +3051,7 @@ export default function App() {
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-2">Target Pekerjaan Hari Ini</label>
-                    <div className="space-y-3">
-                      {checkinForm.tasks.map((task, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                          <input
-                            type="text"
-                            required
-                            placeholder="Apa yang akan dikerjakan?"
-                            value={task.name}
-                            onChange={(e) => handleUpdateCheckinTask(index, 'name', e.target.value)}
-                            className="flex-1 w-full bg-transparent border-b border-zinc-800 px-2 py-1.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500"
-                          />
-                          <div className="flex gap-2 w-full sm:w-auto items-center mt-2 sm:mt-0">
-                            <div className="flex flex-col w-full sm:w-auto">
-                              <span className="text-[9px] text-zinc-500 font-bold mb-0.5 uppercase">Deadline</span>
-                              <input
-                                type="date"
-                                required
-                                value={task.deadline}
-                                onChange={(e) => handleUpdateCheckinTask(index, 'deadline', e.target.value)}
-                                className="w-full sm:w-auto bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500"
-                              />
-                            </div>
-                            {checkinForm.tasks.length > 1 && (
-                              <button type="button" onClick={() => handleRemoveCheckinTask(index)} className="p-2 mt-3 text-red-500 hover:bg-red-500/20 rounded transition">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      <button type="button" onClick={handleAddCheckinTask} className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 hover:text-emerald-300 transition px-2 py-1">
-                        <Plus className="w-4 h-4" /> Tambah Task Lainnya
-                      </button>
-                    </div>
-                  </div>
+
                   <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/30 transition">
                     Submit Check-in
                   </button>
