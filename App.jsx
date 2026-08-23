@@ -627,6 +627,26 @@ export default function App() {
     }
   };
 
+  const revertRequestToProsesDesain = async (reqNo) => {
+    if (!window.confirm('Kembalikan tugas ini ke Sedang Dikerjakan (Proses)?')) return;
+    const { error } = await supabase
+      .from('requests')
+      .update({ status: 'Proses Desain' })
+      .eq('no', reqNo);
+      
+    if (error) {
+      triggerToast('Gagal update ke database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, status: 'Proses Desain' } 
+          : r
+      ));
+      triggerToast(`Tugas ${reqNo} dikembalikan ke Proses Desain!`, 'success');
+    }
+  };
+
   const completeRequestWithLink = async (reqNo) => {
     if (!tempDeliverableLink) {
       triggerToast('Mohon lampirkan Link Hasil Akhir sebagai bukti serah terima.', 'error');
@@ -2226,12 +2246,19 @@ export default function App() {
                           )}
                         </div>
                         
-                        <div className="mt-4 pt-3 border-t border-zinc-800">
+                        <div className="mt-4 pt-3 border-t border-zinc-800 flex flex-col gap-2">
                           <button
                             onClick={() => advanceRequestToQc(req.no)}
                             className="w-full bg-zinc-900 hover:bg-blue-950/40 hover:text-blue-400 text-zinc-300 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
                           >
                             Selesai Edit & Ajukan QC ➔
+                          </button>
+                          <button
+                            onClick={() => unassignRequest(req.no)}
+                            className="w-full bg-zinc-900 hover:bg-amber-950/40 hover:text-amber-400 text-zinc-500 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                          >
+                            <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                            Kembalikan ke Antrean
                           </button>
                         </div>
                       </div>
@@ -2330,15 +2357,24 @@ export default function App() {
                               </div>
                             </div>
                           ) : (
-                            <button
-                              onClick={() => {
-                                setDeliveryRequestId(req.no);
-                                setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
-                              }}
-                              className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-[10px] py-1.5 rounded-lg transition"
-                            >
-                              ✓ Selesaikan & Kirim ➔
-                            </button>
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => {
+                                  setDeliveryRequestId(req.no);
+                                  setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
+                                }}
+                                className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-[10px] py-1.5 rounded-lg transition"
+                              >
+                                ✓ Selesaikan & Kirim ➔
+                              </button>
+                              <button
+                                onClick={() => revertRequestToProsesDesain(req.no)}
+                                className="w-full bg-zinc-900 hover:bg-blue-950/40 hover:text-blue-400 text-zinc-500 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                              >
+                                <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                                Kembalikan ke Proses Desain
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
