@@ -647,6 +647,26 @@ export default function App() {
     }
   };
 
+  const revertRequestToQcDivisi = async (reqNo) => {
+    if (!window.confirm('Kembalikan tugas ini ke Menunggu QC / Revisi?')) return;
+    const { error } = await supabase
+      .from('requests')
+      .update({ status: 'QC & Revisi Divisi' })
+      .eq('no', reqNo);
+      
+    if (error) {
+      triggerToast('Gagal update ke database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, status: 'QC & Revisi Divisi' } 
+          : r
+      ));
+      triggerToast(`Tugas ${reqNo} dikembalikan ke Menunggu QC / Revisi!`, 'success');
+    }
+  };
+
   const completeRequestWithLink = async (reqNo) => {
     if (!tempDeliverableLink) {
       triggerToast('Mohon lampirkan Link Hasil Akhir sebagai bukti serah terima.', 'error');
@@ -2410,6 +2430,15 @@ export default function App() {
                           >
                             Kirim WA
                           </a>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-zinc-800">
+                          <button
+                            onClick={() => revertRequestToQcDivisi(req.no)}
+                            className="w-full bg-zinc-900 hover:bg-violet-950/40 hover:text-violet-400 text-zinc-500 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                          >
+                            <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                            Kembalikan ke QC / Revisi
+                          </button>
                         </div>
                       </div>
                     ))}
