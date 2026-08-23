@@ -1325,7 +1325,7 @@ export default function App() {
                             );
   };
   const pendingRequestsCount = requests.filter(r => r.status === 'Review & Antrean').length;
-  const myJobdeskCount = requests.filter(r => r.status === 'Proses Desain').length;
+  const myJobdeskCount = requests.filter(r => r.status === 'Proses Desain').length + contentCards.filter(c => c.stage !== 'Publish').length;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex flex-col md:flex-row antialiased overflow-x-hidden selection:bg-violet-600 selection:text-white">
@@ -2212,16 +2212,16 @@ export default function App() {
                         <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-black text-pink-400 text-sm border border-zinc-700 shadow-md">
                           {creator.avatar}
                         </div>
-                        {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length > 0 && (
+                        {(requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length + contentCards.filter(c => c.assignee === creator.name && c.stage !== 'Publish').length) > 0 && (
                           <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-zinc-950 animate-bounce shadow-lg shadow-red-500/50">
-                            {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length}
+                            {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length + contentCards.filter(c => c.assignee === creator.name && c.stage !== 'Publish').length}
                           </div>
                         )}
                       </div>
                       <div className="flex flex-col">
                         <span>Jobdesk {creator.name}</span>
                         <span className="text-[10px] text-zinc-500 font-normal">
-                          {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length} Task Aktif
+                          {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length + contentCards.filter(c => c.assignee === creator.name && c.stage !== 'Publish').length} Task Aktif
                         </span>
                       </div>
                     </h3>
@@ -2317,7 +2317,47 @@ export default function App() {
                         </div>
                       </div>
                     ))}
-                    {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length === 0 && (
+                    {contentCards.filter(c => c.assignee === creator.name && c.stage !== 'Publish').map(card => (
+                      <div key={`cc-${card.id}`} className="bg-zinc-950 border border-violet-900/40 p-4 rounded-xl relative group">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] font-mono bg-violet-900/30 px-2 py-0.5 rounded text-violet-400">{card.id}</span>
+                          <button 
+                            onClick={() => { setActiveTab('pabrik-konten'); setActiveSubTab(card.stage); }} 
+                            className="text-[9px] bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2 py-1 rounded transition flex items-center gap-1"
+                          >
+                            Buka di Pabrik
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                          </button>
+                        </div>
+                        <h5 className="text-sm font-bold text-zinc-200">{card.title}</h5>
+                        <div className="flex items-center flex-wrap gap-2 mt-1 mb-1">
+                          <p className="text-xs text-zinc-500">Platform: <span className="font-semibold text-zinc-400">{card.platform}</span></p>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">
+                            PABRIK KONTEN
+                          </span>
+                        </div>
+
+                        {card.notes && (
+                          <div className="mt-2 bg-zinc-900/50 rounded-lg p-2 border border-zinc-800/80">
+                            <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
+                              <strong className="text-zinc-500">Notes:</strong> {card.notes}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 space-y-1 pb-1">
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-zinc-500">Target Tanggal:</span>
+                            <span className="text-amber-400 font-bold">{card.date}</span>
+                          </div>
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-zinc-500">Tahap:</span>
+                            <span className="text-blue-400 font-bold">{card.stage} ({card.status})</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {requests.filter(r => r.pic === creator.name && r.status === 'Proses Desain').length === 0 && contentCards.filter(c => c.assignee === creator.name && c.stage !== 'Publish').length === 0 && (
                       <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang sedang dikerjakan.</p>
                     )}
                   </div>
