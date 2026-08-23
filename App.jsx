@@ -45,14 +45,16 @@ const PIPELINE_STAGES = [
   { key: 'Ide', label: 'Ide / Draft', icon: '💡', desc: 'Brainstorming & ideasi awal konten' },
   { key: 'Script/Brief', label: 'Script / Brief', icon: '📝', desc: 'Penyusunan naskah & konsep visual' },
   { key: 'Produksi', label: 'Produksi / Syuting', icon: '🎥', desc: 'Proses take video, VO, atau penyediaan aset mentah' },
-  { key: 'Editing', label: 'Editing & QC', icon: '🎬', desc: 'Produksi video, desain grafis & audit' },
+  { key: 'Editing', label: 'Editing & QC SPV', icon: '🎬', desc: 'Produksi video, desain grafis & audit oleh SPV' },
+  { key: 'Manager', label: 'Approval Manager', icon: '👑', desc: 'Review akhir oleh Manager' },
   { key: 'Publish', label: 'Publish / Sched', icon: '🚀', desc: 'Konten terbit atau terjadwal rapi' }
 ];
 
 const REQUEST_STAGES = [
   { key: 'Review & Antrean', label: 'Review & Antrean', icon: '📥', color: 'text-amber-400 bg-amber-500/10' },
   { key: 'Proses Desain', label: 'Proses Desain / Editing', icon: '💻', color: 'text-blue-400 bg-blue-500/10' },
-  { key: 'QC & Revisi Divisi', label: 'QC & Revisi Divisi', icon: '🔍', color: 'text-violet-400 bg-violet-500/10' },
+  { key: 'QC & Revisi Divisi', label: 'QC & Revisi SPV', icon: '🔍', color: 'text-violet-400 bg-violet-500/10' },
+  { key: 'Approval Manager', label: 'Approval Manager', icon: '👑', color: 'text-fuchsia-400 bg-fuchsia-500/10' },
   { key: 'Selesai', label: 'Selesai & Kirim', icon: '✅', color: 'text-emerald-400 bg-emerald-500/10' }
 ];
 
@@ -442,6 +444,10 @@ export default function App() {
       setQcModalCard(card);
       setRevisionNote('');
       return;
+    } else if (currentStage === 'Manager') {
+      setQcModalCard(card);
+      setRevisionNote('');
+      return;
     }
     
     setContentCards(prev => prev.map(c => c.id === cardId ? updatedCard : c));
@@ -454,15 +460,22 @@ export default function App() {
   const handleQcApproval = async (approve) => {
     if (!qcModalCard) return;
     let updatedCard = { ...qcModalCard };
+    const isManager = qcModalCard.stage === 'Manager';
 
     if (approve) {
       if (revisionNote.trim() !== '') {
         triggerToast('Gagal! Anda mengetik catatan revisi tetapi malah memencet tombol "Setujui". Hapus catatan jika memang ingin menyetujui.', 'error');
         return;
       }
-      updatedCard = { ...qcModalCard, stage: 'Publish', status: 'Scheduled', notes: `${qcModalCard.notes} | Disetujui oleh SPV` };
-      setActiveSubTab('Publish');
-      triggerToast(`Konten disetujui oleh SPV! Siap dijadwalkan.`);
+      if (isManager) {
+        updatedCard = { ...qcModalCard, stage: 'Publish', status: 'Scheduled', notes: `${qcModalCard.notes} | Disetujui oleh Manager` };
+        setActiveSubTab('Publish');
+        triggerToast(`Konten disetujui oleh Manager! Siap dijadwalkan.`);
+      } else {
+        updatedCard = { ...qcModalCard, stage: 'Manager', status: 'Menunggu Manager', notes: `${qcModalCard.notes} | Disetujui oleh SPV` };
+        setActiveSubTab('Manager');
+        triggerToast(`Konten disetujui oleh SPV! Diteruskan ke Manager.`);
+      }
     } else {
       if (!revisionNote.trim()) {
         triggerToast('Wajib mengisi catatan revisi agar tim tahu apa yang perlu diperbaiki!', 'error');
@@ -473,7 +486,7 @@ export default function App() {
         stage: 'Editing',
         status: 'Editing', 
         revisionCount: qcModalCard.revisionCount + 1, 
-        notes: `${qcModalCard.notes} | Revisi SPV: ${revisionNote}`
+        notes: `${qcModalCard.notes} | Revisi ${isManager ? 'Manager' : 'SPV'}: ${revisionNote}`
       };
       triggerToast(`Konten dikembalikan untuk Revisi.`);
     }
@@ -644,6 +657,26 @@ export default function App() {
           : r
       ));
       triggerToast(`Tugas ${reqNo} dikembalikan ke Proses Desain!`, 'success');
+    }
+  };
+
+  const forwardRequestToManager = async (reqNo) => {
+    if (!window.confirm('Teruskan tugas ini ke Manager untuk final approval?')) return;
+    const { error } = await supabase
+      .from('requests')
+      .update({ status: 'Approval Manager' })
+      .eq('no', reqNo);
+      
+    if (error) {
+      triggerToast('Gagal update ke database!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, status: 'Approval Manager' } 
+          : r
+      ));
+      triggerToast(`Tugas ${reqNo} diteruskan ke Manager!`, 'success');
     }
   };
 
@@ -1344,8 +1377,10 @@ export default function App() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
             <div className="p-6 border-b border-zinc-800/80 flex justify-between items-start">
               <div>
-                <span className="text-xs uppercase font-extrabold tracking-widest text-violet-400">Quality Control Audit</span>
-                <h3 className="text-xl font-bold mt-1 text-zinc-100">Review: {qcModalCard.title}</h3>
+                <span className={`text-xs uppercase font-extrabold tracking-widest ${qcModalCard.stage === 'Manager' ? 'text-fuchsia-400' : 'text-violet-400'}`}>
+                  {qcModalCard.stage === 'Manager' ? 'Approval Manager Audit' : 'Quality Control Audit'}
+                </span>
+                <h3 className="text-xl font-bold mt-1 text-zinc-100\">Review: {qcModalCard.title}</h3>
               </div>
               <button onClick={() => setQcModalCard(null)} className="p-1 rounded-lg hover:bg-zinc-800 text-zinc-400 transition">✕</button>
             </div>
@@ -1368,7 +1403,7 @@ export default function App() {
 
             <div className="p-6 border-t border-zinc-800/80 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Catatan Revisi SPV (Wajib jika minta revisi)</label>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Catatan Revisi {qcModalCard.stage === 'Manager' ? 'Manager' : 'SPV'} (Wajib jika minta revisi)</label>
                 <textarea
                   value={revisionNote}
                   onChange={(e) => setRevisionNote(e.target.value)}
@@ -1388,7 +1423,7 @@ export default function App() {
                   onClick={() => handleQcApproval(true)}
                   className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2"
                 >
-                  ✓ Setujui & Jadwalkan
+                  ✓ {qcModalCard.stage === 'Manager' ? 'Setujui & Jadwalkan' : 'Teruskan ke Manager'}
                 </button>
               </div>
             </div>
@@ -2104,7 +2139,15 @@ export default function App() {
                                       onClick={() => advancePipelineStage(card.id, 'Editing')}
                                       className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg py-2 text-xs font-extrabold transition shadow"
                                     >
-                                      Review QC SPV 👑
+                                      Selesai Edit & Ajukan QC SPV
+                                    </button>
+                                  )}
+                                  {activeSubTab === 'Manager' && (
+                                    <button
+                                      onClick={() => advancePipelineStage(card.id, 'Manager')}
+                                      className="w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white rounded-lg py-2 text-xs font-extrabold transition shadow"
+                                    >
+                                      Review Approval Manager 👑
                                     </button>
                                   )}
                                   {activeSubTab === 'Publish' && (
@@ -2363,24 +2406,21 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Kolom Menunggu QC */}
+                {/* Kolom Menunggu Review */}
                 <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[500px]">
                   <h4 className="text-sm font-bold text-violet-400 mb-4 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-                    Menunggu QC / Revisi
+                    Menunggu Review (SPV & Manager)
                   </h4>
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                    {requests.filter(r => r.pic === creator.name && r.status === 'QC & Revisi Divisi').map(req => (
-                       <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-4 rounded-xl relative group">
+                    {requests.filter(r => r.pic === creator.name && (r.status === 'QC & Revisi Divisi' || r.status === 'Approval Manager')).map(req => (
+                       <div key={req.no} className={`bg-zinc-950 border ${req.status === 'Approval Manager' ? 'border-fuchsia-900/50' : 'border-zinc-800'} p-4 rounded-xl relative group`}>
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
                           <div className="flex items-center gap-1">
-                            <button onClick={() => unassignRequest(req.no)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition bg-zinc-800 rounded" title="Batalkan Penugasan">
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                            <button onClick={() => setEditJobModal(req)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition bg-zinc-800 rounded" title="Edit Jobdesk">
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                            </button>
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${req.status === 'Approval Manager' ? 'bg-fuchsia-500/20 text-fuchsia-400' : 'bg-violet-500/20 text-violet-400'}`}>
+                              {req.status === 'Approval Manager' ? 'DI MANAGER' : 'DI SPV'}
+                            </span>
                           </div>
                         </div>
                         <h5 className="text-sm font-bold text-zinc-200">{req.namaProject}</h5>
@@ -2452,29 +2492,47 @@ export default function App() {
                             </div>
                           ) : (
                             <div className="flex flex-col gap-2">
-                              <button
-                                onClick={() => {
-                                  setDeliveryRequestId(req.no);
-                                  setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
-                                }}
-                                className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-[10px] py-1.5 rounded-lg transition"
-                              >
-                                ✓ Selesaikan & Kirim ➔
-                              </button>
-                              <button
-                                onClick={() => revertRequestToProsesDesain(req.no)}
-                                className="w-full bg-zinc-900 hover:bg-blue-950/40 hover:text-blue-400 text-zinc-500 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
-                              >
-                                <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-                                Kembalikan ke Proses Desain
-                              </button>
+                              {req.status === 'QC & Revisi Divisi' ? (
+                                <>
+                                  <button
+                                    onClick={() => forwardRequestToManager(req.no)}
+                                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white font-bold text-[10px] py-1.5 rounded-lg transition"
+                                  >
+                                    Teruskan ke Manager ➔
+                                  </button>
+                                  <button
+                                    onClick={() => revertRequestToProsesDesain(req.no)}
+                                    className="w-full bg-zinc-900 hover:bg-red-950/40 hover:text-red-400 text-zinc-400 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                                  >
+                                    Revisi (Ke Eksekutor)
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      setDeliveryRequestId(req.no);
+                                      setTempDeliverableLink('https://drive.google.com/file/d/project-asset-link/view');
+                                    }}
+                                    className="w-full bg-gradient-to-r from-fuchsia-600 to-pink-500 hover:from-fuchsia-500 hover:to-pink-400 text-white font-bold text-[10px] py-1.5 rounded-lg transition"
+                                  >
+                                    ✓ Approve Manager & Selesai ➔
+                                  </button>
+                                  <button
+                                    onClick={() => revertRequestToQcDivisi(req.no)}
+                                    className="w-full bg-zinc-900 hover:bg-violet-950/40 hover:text-violet-400 text-zinc-400 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                                  >
+                                    Revisi (Kembalikan ke SPV)
+                                  </button>
+                                </>
+                              )}
                             </div>
                           )}
                         </div>
                       </div>
                     ))}
-                    {requests.filter(r => r.pic === creator.name && r.status === 'QC & Revisi Divisi').length === 0 && (
-                      <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang menunggu QC.</p>
+                    {requests.filter(r => r.pic === creator.name && (r.status === 'QC & Revisi Divisi' || r.status === 'Approval Manager')).length === 0 && (
+                      <p className="text-xs text-zinc-500 text-center py-8">Tidak ada task yang menunggu review.</p>
                     )}
                   </div>
                 </div>
