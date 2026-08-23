@@ -667,6 +667,26 @@ export default function App() {
     }
   };
 
+  const archiveRequest = async (reqNo) => {
+    if (!window.confirm('Arsipkan tugas ini? (Tugas akan dipindahkan ke Menu Arsip)')) return;
+    const { error } = await supabase
+      .from('requests')
+      .update({ status: 'Arsip' })
+      .eq('no', reqNo);
+      
+    if (error) {
+      triggerToast('Gagal mengarsipkan tugas!', 'error');
+      console.error(error);
+    } else {
+      setRequests(prev => prev.map(r => 
+        r.no === reqNo 
+          ? { ...r, status: 'Arsip' } 
+          : r
+      ));
+      triggerToast(`Tugas ${reqNo} berhasil diarsipkan!`, 'success');
+    }
+  };
+
   const completeRequestWithLink = async (reqNo) => {
     if (!tempDeliverableLink) {
       triggerToast('Mohon lampirkan Link Hasil Akhir sebagai bukti serah terima.', 'error');
@@ -1738,6 +1758,20 @@ export default function App() {
             <MessageSquare className="w-5 h-5 shrink-0" />
             Saran & Kritik
           </button>
+
+          <button
+            onClick={() => setActiveTab('arsip')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
+              activeTab === 'arsip'
+                ? 'bg-gradient-to-r from-zinc-800 to-zinc-900 text-zinc-300 border-l-4 border-zinc-500'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
+            }`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Menu Arsip
+          </button>
         </nav>
 
         <div className="p-4 border-t border-zinc-800/80 bg-zinc-950/30 text-xs text-zinc-500 space-y-2">
@@ -2431,13 +2465,19 @@ export default function App() {
                             Kirim WA
                           </a>
                         </div>
-                        <div className="mt-2 pt-2 border-t border-zinc-800">
+                        <div className="mt-2 pt-2 border-t border-zinc-800 flex gap-2">
                           <button
                             onClick={() => revertRequestToQcDivisi(req.no)}
-                            className="w-full bg-zinc-900 hover:bg-violet-950/40 hover:text-violet-400 text-zinc-500 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
+                            className="flex-1 bg-zinc-900 hover:bg-violet-950/40 hover:text-violet-400 text-zinc-500 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition"
                           >
-                            <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-                            Kembalikan ke QC / Revisi
+                            Kembali ke QC
+                          </button>
+                          <button
+                            onClick={() => archiveRequest(req.no)}
+                            className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 rounded-lg py-1.5 text-[10px] font-bold transition flex items-center justify-center gap-1"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                            Arsipkan
                           </button>
                         </div>
                       </div>
@@ -3367,6 +3407,50 @@ export default function App() {
                       </div>
                     </div>
                     <p className="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed">"{req.briefVisual}"</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'arsip' && (
+          <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-zinc-800 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span className="p-1.5 rounded bg-zinc-800 text-zinc-300 text-sm">📦</span>
+                  Menu Arsip
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">Daftar semua tugas yang telah selesai dan diarsipkan.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {requests.filter(r => r.status === 'Arsip').length === 0 ? (
+                <div className="col-span-full py-16 text-center text-zinc-500 text-xs">
+                  Belum ada tugas yang diarsipkan.
+                </div>
+              ) : (
+                requests.filter(r => r.status === 'Arsip').map(req => (
+                  <div key={req.no} className="bg-zinc-950 border border-zinc-800 p-5 rounded-2xl flex flex-col gap-3 shadow-lg opacity-80 hover:opacity-100 transition">
+                    <div className="flex justify-between items-start border-b border-zinc-800 pb-3">
+                      <div>
+                        <span className="text-[10px] font-mono bg-zinc-900 px-2 py-0.5 rounded text-zinc-400">{req.no}</span>
+                        <h5 className="text-sm font-bold text-zinc-200 mt-1.5">{req.namaProject}</h5>
+                      </div>
+                      <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">Arsip</span>
+                    </div>
+                    
+                    <div className="text-[11px] text-zinc-400 space-y-1">
+                      <p><span className="text-zinc-500">Pemohon:</span> {req.pemohon}</p>
+                      <p><span className="text-zinc-500">PIC:</span> {req.pic || '-'}</p>
+                      {req.linkHasilAkhir && (
+                        <p className="mt-2">
+                          <a href={req.linkHasilAkhir} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Lihat Hasil Akhir</a>
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))
               )}
