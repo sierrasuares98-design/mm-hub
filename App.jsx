@@ -28,7 +28,8 @@ const CREATORS = [
   { name: 'Naufal', role: 'Creative Content Marketing', avatar: 'NF', initialRevisionRate: 1.2 },
   { name: 'Resti', role: 'Creative Content Marketing', avatar: 'RS', initialRevisionRate: 1.1 },
   { name: 'Tyo', role: 'Creative Content Marketing', avatar: 'TY', initialRevisionRate: 1.5 },
-  { name: 'Aldo', role: 'Junior Production Assistant', avatar: 'AL', initialRevisionRate: 1.0 }
+  { name: 'Aldo', role: 'Junior Production Assistant', avatar: 'AL', initialRevisionRate: 1.0 },
+  { name: 'Halim', role: 'Creative Content Marketing', avatar: 'HL', initialRevisionRate: 1.0 }
 ];
 
 const INITIAL_CONTENT_CARDS = [];
