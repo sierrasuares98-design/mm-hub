@@ -1620,7 +1620,7 @@ export default function App() {
             onClick={() => setActiveTab('pillars')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'pillars'
-                ? 'bg-gradient-to-r from-cyan-950/60 to-zinc-900 text-cyan-300 border-l-4 border-cyan-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1634,7 +1634,7 @@ export default function App() {
             onClick={() => setActiveTab('beranda')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'beranda'
-                ? 'bg-gradient-to-r from-blue-950/60 to-zinc-900 text-blue-300 border-l-4 border-blue-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1691,7 +1691,7 @@ export default function App() {
             onClick={() => setActiveTab('jobdesk-pribadi')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'jobdesk-pribadi'
-                ? 'bg-gradient-to-r from-pink-950/60 to-zinc-900 text-pink-300 border-l-4 border-pink-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1702,7 +1702,7 @@ export default function App() {
               <span>Jobdesk Pribadi</span>
             </div>
             {myJobdeskCount > 0 && (
-              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-pink-900/50">
+              <span className="bg-emerald-500 text-zinc-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-emerald-900/50">
                 {myJobdeskCount}
               </span>
             )}
@@ -1712,7 +1712,7 @@ export default function App() {
             onClick={() => setActiveTab('request-divisi')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'request-divisi'
-                ? 'bg-gradient-to-r from-amber-950/60 to-zinc-900 text-amber-300 border-l-4 border-amber-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1723,7 +1723,7 @@ export default function App() {
               <span>Request Divisi</span>
             </div>
             {pendingRequestsCount > 0 && (
-              <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-amber-900/50 animate-pulse">
+              <span className="bg-emerald-500 text-zinc-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-emerald-900/50 animate-pulse">
                 {pendingRequestsCount}
               </span>
             )}
@@ -1733,7 +1733,7 @@ export default function App() {
             onClick={() => setActiveTab('control-center')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'control-center'
-                ? 'bg-gradient-to-r from-violet-950/60 to-zinc-900 text-violet-300 border-l-4 border-violet-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1747,7 +1747,7 @@ export default function App() {
             onClick={() => setActiveTab('daily-checkin')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'daily-checkin'
-                ? 'bg-gradient-to-r from-emerald-950/60 to-zinc-900 text-emerald-300 border-l-4 border-emerald-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1761,7 +1761,7 @@ export default function App() {
             onClick={() => setActiveTab('disciplinary')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'disciplinary'
-                ? 'bg-gradient-to-r from-rose-950/60 to-zinc-900 text-rose-300 border-l-4 border-rose-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:bg-[#1D2536]/40 hover:text-slate-100'
             }`}
           >
@@ -1775,7 +1775,7 @@ export default function App() {
             onClick={() => setActiveTab('kpi-kalkulator')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'kpi-kalkulator'
-                ? 'bg-gradient-to-r from-teal-950/60 to-zinc-900 text-teal-300 border-l-4 border-teal-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-[#131824]/50'
             }`}
           >
@@ -1787,7 +1787,7 @@ export default function App() {
             onClick={() => setActiveTab('saran-kritik')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === 'saran-kritik'
-                ? 'bg-gradient-to-r from-emerald-950/60 to-zinc-900 text-emerald-300 border-l-4 border-emerald-500'
+                ? 'bg-gradient-to-r from-emerald-950/60 to-[#131824] text-emerald-400 border-l-4 border-emerald-500'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-[#131824]/50'
             }`}
           >
